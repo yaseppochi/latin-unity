@@ -1,3 +1,32 @@
+2002-03-15  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-latin9.el: Bind the EuroSign keysym.
+
+	* latin-unity.el (latin-unity-representations-present-region): Use
+	skipchars algorithm for a big speedup.
+	(latin-unity-maybe-remap): Fix broken bitvector tests.
+
+2002-03-07  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* Makefile (check): Cheesy new regression test.
+	(ELCS): Add latin-unity-latin9.elc.
+
+	* README (Implementation): Document latin-unity-latin9.el.
+
+	* latin-unity-latin9.el: Split out from latin-unity-vars.
+
+	* latin-unity.el (Requires): New latin-unity-latin9.
+	(latin-unity-sanity-check): Correct polarity of NO-ERROR in calls
+	to latin-unity-maybe-remap.
+	(latin-unity-maybe-remap): Document NO-ERROR.
+	(latin-unity-test): Old name, new function (regression testing).
+	(latin-unity-example): Renamed from latin-unity-test.
+
+	* latin-unity.texi (Basic Functionality): Document cl-macs
+	messages.  Cosmetic changes.
+	(Interactive Usage): Document name change to latin-unity-example
+	and new function of old name latin-unity-test.
+
 2002-03-05  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity.el (latin-unity-guess-coding-system):

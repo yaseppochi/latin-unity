@@ -1,12 +1,12 @@
-;;; latin-9-input.el --- Input method for Latin-9 (ISO 8859/15) -*- coding: iso-2022-jp -*-
+;;; latin-euro-input.el --- Input method for Latin-9 (ISO 8859/15) -*- coding: iso-2022-jp -*-
 
 ;; Copyright (C) 2001, 2002 Free Software Foundation, Inc
 
 ;; Author: Dave Love
 ;; Adapted-by: Stephen J. Turnbull for XEmacs
 ;; Keywords: mule, input methods
-;; Created: 2002 March 1
-;; Last-modified: 2002 March 1
+;; Added: 2002 March 1
+;; Last-modified: 2002 March 14
 
 ;; This file is part of XEmacs.
 
@@ -164,3 +164,6 @@
  ("~=" ?,b/(B)
  ("/=" ?,b,(B))
 
+(provide 'latin-euro-input)
+
+;; end of latin-euro-input.el

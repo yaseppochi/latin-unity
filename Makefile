@@ -19,6 +19,8 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+# Last-Modified: 14 March 2002
+
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 0.99
 AUTHOR_VERSION = 1.00
@@ -30,7 +32,7 @@ REQUIRES = mule-base mule-ucs leim fsf-compat
 CATEGORY = mule
 
 ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
-       latin-unity-tables.elc latin-unity-utils.elc
+       latin-unity-latin9.elc latin-unity-tables.elc latin-unity-utils.elc
 
 # for defvars and creation of ISO 8859/15 charset and coding system
 PRELOADS=-l cl-macs -l latin-unity-vars.el
@@ -52,6 +54,15 @@ all:: auto-autoloads.elc $(ELCS) custom-load.elc $(INFO_FILES)
 
 # There should be a rule here to build latin-unity-tables.el.
 # Then add latin-unity-tables.elc to GENERATED.
+
+# We'd like this to be utf-8, but then pre-21.5.6 would have to depend on
+# Mule-UCS
+check: all
+	xemacs -no-autoloads -batch \
+		-eval "(setq load-path (cons \"`pwd`/\" load-path))" \
+		-l latin-unity-vars -l latin-unity \
+		-f latin-unity-install -f latin-unity-test \
+		-eval "(write-file \"./latintest\" nil 'iso-2022-7)"
 
 srckit: srckit-std
 

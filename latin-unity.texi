@@ -10,8 +10,8 @@
 @c %**end of header
 
 @c Version values, for easy modification
-@set VERSION 0.8
-@set UPDATED Sunday 24 February 2002
+@set VERSION 0.9
+@set UPDATED Thursday 2002 March 7
 
 @c ** Many people seem to prefer this footenote style
 @footnotestyle end
@@ -163,7 +163,7 @@ For general users:
 * What latin-unity Cannot Do for You::  Inherent problems of 8-bit charsets.
 
 For programmers:
-@c * Interfaces::                  Calling @pkgname{} from Lisp code.
+* Interfaces::                  Calling @pkgname{} from Lisp code.
 * Charsets and Coding Systems:: Reference lists with annotations.
 
 For maintainers:
@@ -284,11 +284,20 @@ There are no arguments.
 
 This function is idempotent.  It will reinitialize any hooks or variables
 that are not in initial state.
+
+Note: a quirk in XEmacs means that the @file{cl-macs} library cannot be
+required, it must be loaded explicitly.  This means that if you invoke
+@samp{latin-unity-install} in your init file, XEmacs will print
+@example
+Loading cl-macs...
+Loading cl-macs...done
+@end example
+on your console, as these messages have not yet been redirected to the
+@samp{ *Message-Log*} buffer.
 @end defun
 
 
 @defun latin-unity-uninstall
-
 There are no arguments.
 
 Clean up hooks and void variables used by latin-unity.
@@ -296,9 +305,9 @@ Clean up hooks and void variables used by latin-unity.
 
 
 @defopt latin-unity-ucs-list
-The default value is @code{'(utf-8 iso-2022-7 ctext escape-quoted)}.
-
 List of coding systems considered to be universal.
+
+The default value is @code{'(utf-8 iso-2022-7 ctext escape-quoted)}.
 
 Order matters; coding systems earlier in the list will be preferred when
 recommending a coding system.
@@ -561,13 +570,18 @@ the values in @samp{latin-unity-coding-system-alias-alist}."
 @end defun
 
 
-@defun latin-unity-test
+@defun latin-unity-example
 
-Really cheesy tests for @pkgname{}.
+A cheesy example for @pkgname{}.
 
 At present it just makes a multilingual buffer.  To test, setq
 buffer-file-coding-system to some value, make the buffer dirty (eg
 with RET BackSpace), and save.
+@end defun
+
+@defun latin-unity-test
+
+A simple automated test suite for latin-unity.
 @end defun
 
 
@@ -774,7 +788,7 @@ You}.  So these functions must be invoked by the user.  @xref{Interactive
 Usage}.
 
 
-@node What latin-unity Cannot Do for You, Charsets and Coding Systems, Theory of Operation, Top
+@node What latin-unity Cannot Do for You, Interfaces, Theory of Operation, Top
 @chapter What latin-unity Cannot Do for You
 
 @pkgname{} @strong{cannot} save you if you insist on exporting data in
@@ -836,7 +850,18 @@ mechanically disentangled.  You need a human being who can recognize
 that @emph{this is German and Swedish} and stays in Latin-1, while
 @emph{that is Polish} and needs to be recoded to Latin-2.
 
-@node Charsets and Coding Systems, Internals, What latin-unity Cannot Do for You, Top
+@node Interfaces, Charsets and Coding Systems, What latin-unity Cannot Do for You, Top
+@chapter Interfaces
+
+The Latin-9 language environment is provided in
+@file{latin-unity-latin9.el}.  This file when compiled contains Latin 9
+characters, so you @strong{must} load @file{latin-unity-vars.el} first
+to define those characters.  Otherwise the Lisp reader is likely to
+signal an error due to stray ISO 2022 control sequences.
+
+Sorry, that's all I have to say for now---but it's important!
+
+@node Charsets and Coding Systems, Internals, Interfaces, Top
 @chapter Charsets and Coding Systems
 
 This section provides reference lists of Mule charsets and coding

@@ -5,7 +5,7 @@
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
 ;; Created: 2002 January 26
-;; Last-modified: 2002 January 26
+;; Last-modified: 2002 March 7
 
 ;; This file is part of XEmacs.
 
@@ -34,6 +34,10 @@
 ;; characters in the buffer.
 
 ;; Provides the 'iso-8859-15 coding system if not yet defined.
+
+;; This file must not contain non-builtin charsets outside of comments,
+;; due to a bug fixed in XEmacs 21.4.7/21.5.7.  For that reason, the Latin-9
+;; language environment is provided in latin-unity-latin9.el.
 
 ;;; Code:
 
@@ -80,29 +84,6 @@
      charset-g2 t			; grrr
      charset-g3 t			; grrr
      mnemonic "MIME/Ltn-9")))
-(defun setup-latin9-environment ()
-  "Set up multilingual environment (MULE) for European Latin-9 users."
-  (interactive)
-  (set-language-environment "Latin-9"))
-
-(set-language-info-alist
- "Latin-9" '((charset ascii latin-iso8859-15)
-	     (coding-system iso-8859-15)
-	     (coding-priority iso-8859-15)
-	     (input-method . "latin-9-prefix")
-	     (sample-text
-	      ;; I'd like to append ", my ,b$(B0.02" to the following string,
-	      ;; but can't due to a bug in escape-quoted support
-	      ;; NB: convert the Latin-1 to Latin-9 when possible
-	      . "Hello, Hej, Tere, Hei, Bonjour, Gr,b|_(B Gott, Ciao, ,b!(BHola!, my ,b$(B0.02")
-	     (documentation . "\
-This language environment is a generic one for Latin-9 (ISO-8859-15)
-character set which supports the Euro and the following languages:
- Danish, Dutch, English, Faeroese, Finnish, French, German, Icelandic,
- Irish, Italian, Norwegian, Portuguese, Spanish, and Swedish.
-We also have a German specific language environment \"German\"."))
- '("European"))
-;)
 
 ;; latin-unity-equivalence-table
 ;; could speed things up a tiny bit by splitting out the bit-vector, but

@@ -1,5 +1,7 @@
 ***** latin-unity
 
+Last-modified: 2002 March 14
+
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
 a larger character set.  For example, all of the Latin character sets
@@ -50,7 +52,8 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
     ISO-2022-JP (including Latin-1 characters) to ISO 8859/1 if all
     the Japanese were deleted.  (untested)
 
-  o ISO 8859/15 for XEmacs 21.4 (lightly tested) and 21.1 (untested).
+  o ISO 8859/15 for XEmacs 21.4 (lightly tested) and 21.1 (untested),
+    including binding the EuroSign keysym to ISO 8859/15 0xA4.
     To get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
     (set-coding-category-system 'iso-8-1 'iso-8859-15).  (untested)
     Alternatively set language environment to Latin-9.
@@ -62,7 +65,7 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
   o Hooks into `write-region' to prevent (or at least drastically
     reduce the probability of) introduction of ISO 2022 escape
     sequences for "foreign" character sets.  This hook is not set by
-    default in this package yet; try M-x latin-unity-test RET for a
+    default in this package yet; try M-x latin-unity-example RET for a
     short introduction and some useful C-x C-e'able exprs.
 
     This may permit us to turn off support for those sequences
@@ -89,20 +92,15 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
 
 Current misfeatures:
 
+  o Must load latin-unity-vars before reading a file with ISO 8859/15,
+    there is no way to autoload a charset.
+
   o Need `(require 'latin-euro-input)' to get Quail support.
 
-  o If the buffer is changed by the hook, apparently write-region
-    starts over again from the top.  The buffer is checked again, and
-    you are asked to choose the coding system again.  If you choose
-    the same one, then the save goes through.
-
-    Note that if you choose a non-default coding system the first time
-    through, you will not get your choice as a default the second
-    time.  You'll get the same default as the first time.
-
-  o Probable performance hit on large (> 20kB) buffers with many
-    (>20%) non-ASCII characters.  Possible optimizations are given near
-    `latin-unity-region-feasible-representations' in latin-unity.el.
+  o Possible performance hit on large (> 20kB) buffers with many
+    (>20%) non-ASCII characters.  Partially optimized, but see near
+    `latin-unity-region-representations-feasible-region' in
+    latin-unity.el for possible further optimizations.
 
   o Package depends on Mule-UCS, LEIM (Quail), and fsf-compat.
 
@@ -123,8 +121,6 @@ Planned, mostly near future:
   o Integration to development tree (but probably not 21.4, this
     package should be good enough).
 
-  o Charset completion for the interactive recoding/remapping functions.
-
   o Hook into MUAs.
 
   o GNU Emacs support.
@@ -144,6 +140,9 @@ functionality, including a hook function to hang on `write-region-pre-hook'.
 
 latin-unity-vars.el contains the definition of ISO 8859/15 and variables
 common to several modules.
+
+latin-unity-latin9.el defines the Latin-9 environment.  It contains
+Latin-9 characters so cannot be part of latin-unity-vars.el.
 
 latin-euro-input.el contains Dave Love's Quail input method for Latin 9.
 
