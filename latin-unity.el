@@ -34,7 +34,6 @@
 ;; characters in the buffer.
 
 ;; Provides the 'iso-8859-15 coding system if yet undefined.
-;; #### Get the final byte for 'iso-8859-16 and do it too.
 
 ;;; Code:
 
@@ -59,8 +58,6 @@
   "Handle equivalent ISO-8859 characters properly (identify them) on output."
   :group 'mule)
 
-;; #### We demand a coding system widget!
-;; #### The :set functions should do sanity and cross checks.
 (defcustom latin-unity-preapproved-coding-system-list
   '(buffer-default preferred)
   "*List of coding systems used without querying the user if feasible.
@@ -148,12 +145,20 @@ saved in 7-bit form with ISO 2022 escape sequences."
     (latin-5 . latin-iso8859-9)
     (latin-9 . latin-iso8859-15)
     (latin-10 . latin-iso8859-16))
-  "*Alist mapping aliases to Mule charset names (symbols)."
+  "*Alist mapping aliases (symbols) to Mule charset names (symbols).
+
+Both aliases and names are symbols.
+Aliases of unsupported charsets will be treated as if the charset name had
+been entered directly (normally an error will be signaled)."
   :type '(repeat (cons symbol symbol))
   :group 'latin-unity)
 
 (defcustom latin-unity-coding-system-alias-alist nil
-  "*Alist mapping aliases to Mule coding system names (symbols)."
+  "*Alist mapping aliases to Mule coding system names.
+
+Both aliases and names are symbols.
+Aliases of unsupported coding systems will be treated as if the coding system
+name had been entered directly (normally an error will be signaled)."
   :type '(repeat (cons symbol symbol))
   :group 'latin-unity)
 
@@ -161,7 +166,7 @@ saved in 7-bit form with ISO 2022 escape sequences."
 (defcustom latin-unity-iso-8859-1-aliases '(iso-8859-1)
   "List of coding systems to be treated as aliases of ISO 8859/1.
 
-This is not a user variable; to customize input of coding systems or charsets,
+Not a user variable.  Customize input of coding systems or charsets via
 `latin-unity-coding-system-alias-alist' or `latin-unity-charset-alias-alist'."
   :type '(repeat symbol)
   :group 'latin-unity)
@@ -272,6 +277,11 @@ Accessor for `latin-unity-equivalences'."
 ;; characters are common and cannot change asciisets.  Then using
 ;; skip-chars-forward makes motion over ASCII subregions very fast.
 ;;
+;; Easy optimizations would be to (1) append observed characters to the
+;; characters-to-skip string, and (2) to fail immediately on detection of
+;; a non-Latin character.  (Avoid kludgy implementations of (2) which don't
+;; admit generalization as we add more character sets to unify.)
+;;
 ;; This same strategy could be applied generally by precomputing classes
 ;; of characters equivalent according to their effect on latinsets, and
 ;; adding a whole class to the skip-chars-forward string once a member is
@@ -302,7 +312,9 @@ individually represent all of the ASCII portion."
       (set-buffer (or buf (current-buffer)))
       (save-restriction
 	(widen)
-	(let ((begin (or begin (point-min)))
+	;; autosave may pass us nil arguments.  Force both to be nil, or
+	;; both to be integer-or-marker-p.
+	(let ((begin (or begin (and (null end) (point-min))))
 	      (end (or end (and (null begin) (point-max)))))
 	  (goto-char begin)
 	  ;; The characters skipped here can't change asciisets.
@@ -329,7 +341,7 @@ individually represent all of the ASCII portion."
 
 
 ;; #### possibly it would be faster to do this in the previous function
-;; charsets-in-region is in Lisp and quite slow.  :-(
+;; charsets-in-region unusable; it is in Lisp and quite slow.  :-(
 (defun latin-unity-representations-present-region (begin end &optional buffer)
   "Return a cons of two bit vectors giving character sets in region.
 
@@ -342,8 +354,10 @@ character sets.  BUFFER defaults to the current buffer."
     (save-excursion
       (set-buffer (or buffer (current-buffer)))
       (save-restriction
-	;; #### not quite right, should test
-	(narrow-to-region (or begin (point-min))
+	;; autosave may pass us nil arguments.  Force both to be nil, or
+	;; both to be integer-or-marker-p.
+	;; #### implementation differs from l-u-r-f-r
+	(narrow-to-region (or begin (and (null end) (point-min)))
 			  (or end (and (null begin) (point-max))))
 	(goto-char (point-min))
 	(while (not (eobp))
@@ -403,8 +417,8 @@ This function is intended for use as a `write-region-pre-hook'.  It does
 nothing except return nil if `write-region' handlers are inhibited."
 
   ;; don't do anything if we're in a `write-region' handler
+  ;; #### is nil the right return value if we are?
   (if (eq inhibit-file-name-operation 'write-region)
-      ;; is this the right return value?
       nil
     (let ((buffer-default
 	   ;; theoretically we could look at other write-region-prehooks,
@@ -419,77 +433,72 @@ nothing except return nil if `write-region' handlers are inhibited."
 	  ;; as an optimization we also check for what's in the buffer
 	  ;; psets == present in buffer character sets as (latin . ascii)
 	  (psets (latin-unity-representations-present-region begin end)))
-      (when latin-unity-debug
-	;; cheezy debug code
-	(cond ((null csets) (error "no feasible reps vectors?!?"))
-	      ((null (cdr csets)) (error "no ascii reps vector?!?"))
-	      ((null (car csets)) (error "no latin reps vector?!?"))
-	      ((null psets) (error "no reps present vectors?!?"))
-	      ((null (cdr psets)) (error "no ascii reps present vector?!?"))
-	      ((null (car psets)) (error "no latin reps present vector?!?"))
-	      ((null (get 'ascii 'latin-unity-flag-bit))
-	       (error "no flag bit for ascii?!?")))
-	(message "%s %s" csets psets)
-	(sit-for 1))
+      (flet ((massage-coding-system-name (x)
+	       ;; X can be 'buffer-default, 'preferred, a coding system
+	       ;; object, or a symbol naming a coding system
+	       (coding-system-name (cond ((and (eq sys 'buffer-default)
+					       buffer-default))
+					 ((and (eq sys 'preferred)
+					       preferred))
+					 (t sys)))))
+	(when latin-unity-debug (message "%s %s" csets psets) (sit-for 1))
 
-      (cond
-       ;; try the preapproved systems
-       ((catch 'done
-	  (let ((systems latin-unity-preapproved-coding-system-list)
-		(sys (car latin-unity-preapproved-coding-system-list)))
-	    ;; while always returns nil
-	    (while systems
-	      ;; #### to get rid of this we probably need to preprocess
-	      ;; latin-unity-preapproved-coding-system-list
-	      (setq sys (cond ((and (eq sys 'buffer-default) buffer-default))
-			      ((and (eq sys 'preferred) preferred))
-			      (t sys)))
-	      (when (latin-unity-maybe-remap begin end sys csets psets t)
-		(throw 'done sys))
-	      (setq systems (cdr systems))
-	      (setq sys (car systems))))))
+	(cond
+	 ;; try the preapproved systems
+	 ((catch 'done
+	    (let ((systems latin-unity-preapproved-coding-system-list))
+	      ;; while always returns nil
+	      (while systems
+		(let ((sys (massage-coding-system-name (car systems))))
+		  (when latin-unity-debug (message "sys is %s" sys))
+		  (when (latin-unity-maybe-remap begin end sys
+						 csets psets t)
+		    (when latin-unity-debug (message "throwing %s" sys))
+		    (throw 'done sys))
+		  (setq systems (cdr systems)))))))
+	 ;; ask the user about the preferred systems
+	 ;; #### RFE: It also would be nice if the offending characters
+	 ;; were marked in the buffer being checked.
+	 (t (let* ((recommended
+		    (latin-unity-recommend-representation begin end csets))
+		   (codesys (car recommended))
+		   ;(charset (cdr recommended)) ; unused?
+		   )
+	      (when latin-unity-debug (message "%s" recommended))
+	      ;; compute return
+	      (cond
 
-       ;; ask the user about the preferred systems
-       ;; #### RFE: It also would be nice if the offending characters
-       ;; were marked in the buffer being checked.
-       (t (let* ((recommended
-		  (latin-unity-recommend-representation begin end csets))
-		 (codesys (car recommended))
-		 ;(charset (cdr recommended)) ; unused?
-		 )
-	    (when latin-unity-debug (message "%s" recommended))
-	    ;; compute return
-	    (cond
+	       ;; universal coding systems
+	       ;; #### we might want to unify here if the codesys is ISO 2022
+	       ;; but we don't have enough information to decide
+	       ((memq codesys latin-unity-ucs-list) codesys)
 
-	     ;; universal coding systems
-	     ;; #### we might want to unify here if the codesys is ISO 2022
-	     ;; but we don't have enough information to decide
-	     ((memq codesys latin-unity-ucs-list) codesys)
+	       ;; ISO 2022 (including ISO 8859) compatible systems
+	       ;; #### maybe we should check for G2 and G3 sets
+	       ;; note the special case is necessary, as 'iso-8859-1 is NOT
+	       ;; type 'iso2022, it's type 'no-conversion
+	       ((or (memq codesys latin-unity-iso-8859-1-aliases)
+		    (eq (coding-system-type codesys) 'iso2022))
+		;; #### make sure maybe-remap always returns a coding system
+		;; #### I thought about like-to-live-dangerously here,
+		;; but first make sure make sure maybe-remap returns nil
+		(setq codesys (massage-coding-system-name codesys))
+		(when (latin-unity-maybe-remap begin end codesys
+					       csets psets nil)
+		  codesys))
 
-	     ;; ISO 2022 (including ISO 8859) compatible systems
-	     ;; #### maybe we should check for G2 and G3 sets
-	     ;; note the special case is necessary, as 'iso-8859-1 is NOT
-	     ;; type 'iso2022, it's type 'no-conversion
-	     ((or (memq codesys latin-unity-iso-8859-1-aliases)
-		  (eq (coding-system-type codesys) 'iso2022))
-	      ;; #### make sure maybe-remap always returns a coding system
-	      ;; #### I thought about like-to-live-dangerously here,
-	      ;; but first make sure make sure maybe-remap returns nil
-	      (when (latin-unity-maybe-remap begin end codesys csets psets nil)
-		codesys))
+	       ;; other coding systems -- eg Windows 125x, KOI8?
+	       ;; #### unimplemented
 
-	     ;; other coding systems -- eg Windows 125x, KOI8?
-	     ;; #### unimplemented
-
-	     ;; no luck, pass the buck back to `write-region'
-	     ;; #### we really shouldn't do this, defeats the purpose
-	     (t (unless latin-unity-like-to-live-dangerously
-		  (warn (concat "Passing to default coding system,"
-				" data corruption likely"))
-		  (ding)
-		  nil))
-	     )))
-       ))))
+	       ;; no luck, pass the buck back to `write-region'
+	       ;; #### we really shouldn't do this, defeats the purpose
+	       (t (unless latin-unity-like-to-live-dangerously
+		    (warn (concat "Passing to default coding system,"
+				  " data corruption likely"))
+		    (ding)
+		    nil))
+	       )))
+	 )))))
 
 
 ;; #### maybe this is what we want to test?  add a no-ask flag.
@@ -507,14 +516,13 @@ BUFFER defaults to the current buffer."
   ;; interactive not useful because of representation of FEASIBLE
   (unless buffer (setq buffer (current-buffer)))
 
-        ;; #### this code is repeated too often
   (let ((buffer-default
 	 ;; theoretically we could look at other write-region-prehooks,
 	 ;; but they might write the buffer and we lose bad
 	 (or
 	  ; coding-system ; I think this is null anyway
 	  buffer-file-coding-system
-	  ;; #### this is wrong for auto-saves at least
+	  ; wrong for auto-saves at least
 	  ; (find-file-coding-system-for-write-from-filename
 	  ;   (buffer-file-name))
 	  ))
@@ -536,7 +544,6 @@ fail to appropriately encode some of the characters present in the buffer."
 					      (symbol-value x))))
 				  x))
 			      latin-unity-preapproved-coding-system-list)))
-      ;; #### we could get this from PRESENT and avoid the auto-save silliness
       (when latin-unity-debug
 	(insert "  Character sets found are:\n\n   ")
 	(mapc (lambda (cs) (insert (format " %s" cs)))
@@ -546,7 +553,7 @@ fail to appropriately encode some of the characters present in the buffer."
 		  (widen)
 		  (let ((begin (or begin (point-min)))
 			(end (or end (point-max))))
-		    ;; #### this function is slow!
+		    ;; this function is slow!
 		    (charsets-in-region begin end))))))
       (insert "
 
@@ -615,7 +622,7 @@ For a list of coding systems, quit and invoke `list-coding-systems'.")
 			 (coding-system-property val 'charset-g1)))))))))
 
 ;; this could be a flet in latin-unity-sanity-check
-;; -- no, this is what we want to test?
+;; -- no, this is what we want to regression test?
 ;; #### this function's interface needs to change, s/codesys/charset/
 ;; #### did you update all calls?
 ;; #### did you update all docs?
@@ -691,29 +698,13 @@ of any characters, use `latin-unity-remap-region'."
    (let ((begin (region-beginning))
 	 (end (region-end)))
      (list begin end
-	   ;; #### Abstract this to handle both charset and coding system
-	   (let ((cs (intern (completing-read "Current character set: "
-					      obarray #'find-charset))))
-	     (while (not (find-charset cs))
-	       (setq cs (latin-unity-guess-charset cs))
-	       (cond ((not (find-charset cs))
-		      (setq cs (intern (completing-read
-					"Oops.  Current character set: "
-					obarray #'find-charset))))
-		     ((y-or-n-p (format "Guessing %s " cs)) cs)
-		     (t (setq cs nil))))
-	     cs)
-	   (let ((cs (intern (completing-read "Desired character set: "
-					      obarray #'find-charset))))
-	     (while (not (find-charset cs))
-	       (setq cs (latin-unity-guess-charset cs))
-	       (cond ((not (find-charset cs))
-		      (setq cs (intern (completing-read
-					"Oops.  Desired character set: "
-					obarray #'find-charset))))
-		     ((y-or-n-p (format "Guessing %s " cs)) cs)
-		     (t (setq cs nil))))
-	     cs))))
+	   (latin-unity-read-coding-system-or-charset
+	    'charset
+	    "Current character set: "))
+     (list begin end
+	   (latin-unity-read-coding-system-or-charset
+	    'charset
+	    "Desired character set: "))))
 
   (save-excursion
     (goto-char begin)
@@ -751,30 +742,13 @@ of any characters, use `latin-unity-remap-region'."
    (let ((begin (region-beginning))
 	 (end (region-end)))
      (list begin end
-	   ;; #### Abstract this to handle both charset and coding system
-	   (let ((cs (intern (completing-read "Current coding system: "
-					      obarray #'find-coding-system))))
-	     (while (not (find-coding-system cs))
-	       (setq cs (latin-unity-guess-coding-system cs))
-	       (cond ((not (find-coding-system cs))
-		      (setq cs (intern (completing-read
-					"Oops.  Current coding system: "
-					obarray #'find-coding-system))))
-		     ((y-or-n-p (format "Guessing %s " cs)) cs)
-		     (t (setq cs nil))))
-	     cs)
-	   (let ((cs (intern (completing-read "Desired coding system: "
-					      obarray #'find-coding-system))))
-	     (while (not (find-coding-system cs))
-	       (setq cs (latin-unity-guess-coding-system cs))
-	       (cond ((not (find-coding-system cs))
-		      (setq cs (intern
-				(completing-read
-				 "Oops.  Desired coding system: "
-				 obarray #'find-coding-system))))
-		     ((y-or-n-p (format "Guessing %s " cs)) cs)
-		     (t (setq cs nil))))
-	     cs))))
+	   (latin-unity-read-coding-system-or-charset
+	    'coding-system
+	    "Current coding system: "))
+     (list begin end
+	   (latin-unity-read-coding-system-or-charset
+	    'coding-system
+	    "Desired coding system: "))))
 
   (encode-coding-region begin end wrong-cs)
   (decode-coding-region begin end right-cs))
@@ -815,18 +789,8 @@ To recode characters that were decoded in the wrong coding system, use
    (let ((begin (region-beginning))
 	 (end (region-end)))
      (list begin end
-	   ;; #### Abstract this to handle both charset and coding system
-	   (let ((cs (intern (completing-read "Character set: "
-					      obarray #'find-charset))))
-	     (while (not (find-charset cs))
-	       (setq cs (latin-unity-guess-charset cs))
-	       (cond ((not (find-charset cs))
-		      (setq cs (intern
-				(completing-read "Oops.  Character set: "
-						 obarray #'find-charset))))
-		     ((y-or-n-p (format "Guessing %s " cs)) cs)
-		     (t (setq cs nil))))
-	     cs))))
+	   (latin-unity-read-coding-system-or-charset 'charset
+						      "Character set: "))))
 
   (save-excursion
     (save-restriction
@@ -861,6 +825,37 @@ To recode characters that were decoded in the wrong coding system, use
 					   "Remap failed; can't save!")))))
 	))))
 
+
+(defun latin-unity-read-coding-system-or-charset (target-type &optional prompt)
+  "Handle user input of coding system or charset names with guessing.
+
+Returns a coding-system name or charset name according to TARGET-TYPE.
+Prompt with optional PROMPT, which defaults to \"Enter TARGET-TYPE: \".
+
+Uses `latin-unity-guess-coding-system' to \"guess\" an appropriate coding
+system from a charset name and vice versa (via `latin-unity-guess-charset').
+These functions also consult alias lists."
+
+  (unless (memq target-type '(coding-system charset))
+    (error 'args-out-of-range "wanted 'coding-system or 'charset"
+	   target-type))
+
+  (let ((prompt (or (stringp prompt) (format "Enter %s name: " target-type))))
+    (flet ((typecheck (x)
+	     (funcall (intern (format "find-%s" target-type)) x))
+	   (guess (x)
+	     (funcall (intern (format "latin-unity-guess-%s" target-type)) x)))
+      (let ((obj (intern (completing-read prompt obarray #'typecheck))))
+	(while (not (typecheck obj))
+	  (setq obj (guess obj))
+	  (cond ((not (typecheck obj))
+		 (setq obj (intern (completing-read (concat "Oops!  " prompt)
+						    obarray #'typecheck))))
+		((y-or-n-p (format "Guessing %s. OK? " obj)) obj)
+		(t (setq obj t))))
+	obj))))
+
+
 (defun latin-unity-guess-charset (candidate)
   "Guess a charset based on the symbol CANDIDATE.
 
@@ -868,12 +863,16 @@ CANDIDATE itself is not tried as the value.
 
 Uses the natural mapping in `latin-unity-cset-codesys-alist', and the values
 in `latin-unity-charset-alias-alist'."
-  (let ((charset
-	 (cond ((not (symbolp candidate))
-		(error 'wrong-type-argument "Not a symbol: " candidate))
-	       ((find-coding-system candidate)
-		(car (rassq candidate latin-unity-cset-codesys-alist)))
-	       (t (cdr (assq  candidate latin-unity-charset-alias-alist))))))
+  (let* ((indirect (cdr (assq candidate
+			      latin-unity-coding-system-alias-alist)))
+	 (charset
+	  (cond ((not (symbolp candidate))
+		 (error 'wrong-type-argument "Not a symbol" candidate))
+		((find-coding-system candidate)
+		 (car (rassq candidate latin-unity-cset-codesys-alist)))
+		((find-coding-system indirect)
+		 (car (rassq indirect latin-unity-cset-codesys-alist)))
+		(t (cdr (assq  candidate latin-unity-charset-alias-alist))))))
     (when (find-charset charset)
       charset)))
 
@@ -883,15 +882,21 @@ in `latin-unity-charset-alias-alist'."
 CANDIDATE itself is not tried as the value.
 
 Uses the natural mapping in `latin-unity-cset-codesys-alist', and the values
-in `latin-unity-coding-system-alias-alist'."
+in `latin-unity-coding-system-alias-alist'.
 
-  (let ((coding-system
-	 (cond ((not (symbolp candidate))
-		(error 'wrong-type-argument "Not a symbol: " candidate))
-	       ((find-charset candidate)
-		(car (assq candidate latin-unity-cset-codesys-alist)))
-	       (t (cdr (assq candidate
-			     latin-unity-coding-system-alias-alist))))))
+Returns a symbol naming a coding system, or t to mean \"not a coding system\".
+\(Horrible, but Mule interprets nil as a spelling of 'binary.)"
+
+  (let* ((indirect (cdr (assq candidate latin-unity-charset-alias-alist)))
+	 (coding-system
+	  (cond ((not (symbolp candidate))
+		 (error 'wrong-type-argument "Not a symbol" candidate))
+		((find-charset candidate)
+		 (cdr (assq candidate latin-unity-cset-codesys-alist)))
+		((find-charset indirect)
+		 (cdr (assq indirect latin-unity-cset-codesys-alist)))
+		((cdr (assq candidate latin-unity-coding-system-alias-alist)))
+		(t t))))
     (when (find-coding-system coding-system)
       coding-system)))
 

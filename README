@@ -52,15 +52,14 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
     ISO-2022-JP (including Latin-1 characters) to ISO 8859/1 if all
     the Japanese were deleted.  (untested)
 
-  o ISO 8859/15 for XEmacs 21.4 (lightly tested) and 21.1 (untested),
-    including binding the EuroSign keysym to ISO 8859/15 0xA4.
+  o ISO 8859/15 for XEmacs 21.4 (moderately tested) and 21.1 (lightly
+    tested), including binding the EuroSign keysym to ISO 8859/15 0xA4.
     To get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
     (set-coding-category-system 'iso-8-1 'iso-8859-15).  (untested)
     Alternatively set language environment to Latin-9.
 
-    If all you want is ISO 8859/15 support, you can either copy the
-    ISO 8859/15 setup to another file, or `(require 'latin-unity-vars)'
-    and `(require 'latin-euro-input)'.
+    If all you want is ISO 8859/15 support, you can `(require
+    'latin-unity-latin9)' and `(require 'latin-euro-input)'.
 
   o Hooks into `write-region' to prevent (or at least drastically
     reduce the probability of) introduction of ISO 2022 escape
@@ -129,6 +128,10 @@ Planned, mostly near future:
   o Hook into MUAs.
 
   o GNU Emacs support.
+
+  o Add coding-system and charset widgets for Customization.  The :set
+    functions should do sanity and cross checks.
+
 
 Not planned any time soon:
 

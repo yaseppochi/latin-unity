@@ -23,7 +23,7 @@
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 1.03
-AUTHOR_VERSION = 1.02
+AUTHOR_VERSION = 1.04
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
 PKG_TYPE = regular

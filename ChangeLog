@@ -1,3 +1,46 @@
+2002-04-30  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* Makefile (AUTHOR_VERSION): Bump 1.02 -> 1.04.
+	
+2002-04-29  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* README (Features): Update testing status and optional requires.
+
+2002-04-27  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-read-coding-system-or-charset): New.
+	(latin-unity-remap-region):
+	(latin-unity-recode-coding-region):
+	(latin-unity-recode-region):
+	Use it.
+
+2002-04-24  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-charset-alias-alist):
+	(latin-unity-coding-system-alias-alist):
+	(latin-unity-iso-8859-1-aliases):
+	Improve docstrings.
+
+	(latin-unity-sanity-check): 
+	(latin-unity-recommend-representation):
+	Remove #### flags from verified code.
+
+	(latin-unity-representations-feasible-region):
+	(latin-unity-representations-present-region):
+	Correct argument checking.
+
+	(latin-unity-representations-feasible-region): Describe planned
+	optimizations.
+
+	* README (Planned features): 
+	latin-unity.el (various toplevel):
+	Move some TODO items out of code to README.
+
+2002-04-09  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-sanity-check): Convert coding system
+	to name.
+
 2002-04-24  Steve Youngs  <youngs@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.03 released.
