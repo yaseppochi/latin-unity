@@ -41,9 +41,8 @@ endif
 # some really ugly Makefile voodoo that will allow people using XEmacs
 # 21.1 to build the packages without it blowing up in their faces.
 # Don't try this at home, kids.  SY.
-REQ_MIN_VERSION = 21 4
 include ../../Local.rules
-CHECK_VERSION =	$(XEMACS) -batch -eval '(princ (emacs-version>= $(value REQ_MIN_VERSION)))'
+CHECK_VERSION =	$(XEMACS) -batch -no-autoloads -eval '(princ (emacs-version>= 21 4))'
 
 ifeq ($(shell $(CHECK_VERSION)),t)
 ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
