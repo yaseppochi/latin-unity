@@ -1,3 +1,7 @@
+2002-03-27  Steve Youngs  <youngs@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.02 released.
+
 2002-03-25  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity-utils.el (load cl-macs): Inhibit messages.
