@@ -1,3 +1,24 @@
+2003-03-09  Ben Wing  <ben@xemacs.org>
+
+	* Makefile (TEXI_FILES): Removed.
+	* Makefile (INFO_FILES): Removed.
+	* Makefile (STANDARD_DOCS): New.
+	* Makefile (DATA_1_DEST):
+	* Makefile (latin-unity-tables.el):
+	* Makefile (clean): Removed.
+	* Makefile (tableclean): Removed.
+	* Makefile (distclean): Removed.
+	* Makefile (tabledistclean): Removed.
+	* Makefile (check):
+	Delete explicit compile:: and binkit: rules.
+	Don't add custom-load.elc to the list of generated elc's.
+	Delete code to error when no Mule (now automatic).
+	Use STANDARD_DOCS instead of explicitly giving the targets
+	and dependencies.
+	Use GENERATED_ELCS for adding latin-unity-tables.elc; do it before
+	including XEmacs.rules and delete extra rules for clean: and
+	distclean:, since they're handled automatically now.
+
 2002-12-07  Ville Skyttä  <scop@xemacs.org>
 
 	* .cvsignore: Remove files now handled automatically by CVS.
