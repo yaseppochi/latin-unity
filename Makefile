@@ -23,18 +23,18 @@
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 1.06
-AUTHOR_VERSION = 1.05
+AUTHOR_VERSION = $(VERSION)
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
 PKG_TYPE = regular
 # The Mule-UCS, leim, and fsf-compat requires will go away at some point
-REQUIRES = mule-base mule-ucs leim fsf-compat
+REQUIRES = mule-base mule-ucs leim fsf-compat dired
 CATEGORY = mule
 
 ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-latin7.elc latin-latin7-input.elc latin-unity-latin9.elc \
        latin-unity-latin8.elc latin-unity-latin10.elc \
-       latin-unity-tables.elc latin-unity-utils.elc
+       latin-unity-utils.elc
 
 EXTRA_SOURCES = latin-unity-tests.el
 
@@ -51,25 +51,36 @@ DATA_1_DEST = $(PACKAGE)
 
 include ../../XEmacs.rules
 
-GENERATED += custom-load.elc
+GENERATED += $(AUTOLOAD_PATH)/custom-load.elc latin-unity-tables.elc
 
 ifeq ($(BUILD_WITHOUT_MULE),)
 
-all:: auto-autoloads.elc $(ELCS) custom-load.elc $(INFO_FILES)
+all:: $(GENERATED) $(ELCS) $(INFO_FILES)
 
 # Experimental rule to build latin-unity-tables.el.
-# Note: `make latin-unity-tables.elc' Just Works
-# Add latin-unity-tables.elc to GENERATED when it's well-tested.
 latin-unity-tables.el: latin-unity-vars.elc latin-unity-utils.elc
+	@echo "*** Warnings about ISO 8859/3 are OK; it doesn't use all code points. ***"
 	$(XEMACS) -batch -no-autoloads -l dired \
 		-eval '(setq load-path (cons (default-directory) load-path))' \
 		-l latin-unity-utils -f latin-unity-dump-tables
+
+clean:: tableclean
+
+tableclean:
+	rm -f latin-unity-tables.elc
+
+distclean:: tabledistclean
+
+tabledistclean:
+	rm -f latin-unity-tables.el
 
 # We'd like this to be utf-8, but then pre-21.5.6 would have to depend on
 # Mule-UCS
 # #### This is broken by latin-unity-tests.el.
 check: all
 	@echo "make check is currently broken :-/"
+	@echo "If you have an XEmacs core source tree, load tests/automated/test-harness"
+	@echo "and run M-x test-emacs-test-file RET latin-unity-tests RET by hand."
 #	xemacs -no-autoloads -batch \
 #		-eval "(setq load-path (cons \"`pwd`/\" load-path))" \
 #		-l latin-unity-vars -l latin-unity \

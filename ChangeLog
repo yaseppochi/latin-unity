@@ -1,16 +1,39 @@
+2002-10-30  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-utils.el: Add progress messages for hardcoded charsets.
+
+	* Makefile: Implement latin-unity-tables as generated.
+	(REQUIRES): Add dired.
+	(check): Exhort testers to run tests by hand.
+	(AUTHOR_VERSION): Set to $(VERSION), this is the headwaters.
+
+2002-10-30  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* ChangeLog: Fix my bogus email.
+
+	* latin-unity.el (latin-unity-maybe-remap): Eliminate redundant
+	call to find-coding-system in latin-unity-base-name.  Canonicalize
+	CODESYS to base-name on entry.
+
+2002-10-29  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.texi: Fix style (usage of @samp).
+	(Usage): Update recommended usage of variables.
+	(Frequently Asked Questions): Two new FAQs.  Thanks, Didier!
+
 2002-10-29  Rendhalver [Peter Brown]  <rendhalver@xemacs.org>
 
 	* Makefile: (VERSION): XEmacs package 1.06 released.
 
-2002-10-28  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+2002-10-28  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity.texi (Theory of Operation): Fix bad Previous link.
 
-2002-10-25  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+2002-10-25  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* (latin-unity-tables.el): Regenerate with Latin-7,8,10.
 
-2002-10-24  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+2002-10-24  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity-utils.el (latin-unity-dump-tables): Put creation
 	date information in a couple of useful places.
@@ -32,7 +55,7 @@
 	(Charsets and Coding Systems): Document	Latin 7, 8, and 10
 	support, Unicode support in 21.5, and importance of escape-quoted.
 
-2002-10-22  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+2002-10-22  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* BLURB: Update for Latin-7 support.
 
@@ -148,7 +171,7 @@
 	(latin-unity-maybe-set-coding-system): New function using it.
 	(latin-unity-sanity-check): Use it.
 
-2002-10-15  Ville Skytt,Ad(B  <scop@xemacs.org>
+2002-10-15  Ville Skyttä  <scop@xemacs.org>
 
 	* Makefile (srckit): Remove.
 

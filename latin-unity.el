@@ -749,7 +749,7 @@ For a list of coding systems, quit this command and invoke
 				&optional present no-error)
   "Try to remap from BEGIN to END to CODESYS.  Return nil on failure.
 
-Return CODESYS on success.  CODESYS is a coding system or nil.
+Return CODESYS on success.  CODESYS is a real coding system or nil.
 FEASIBLE is a cons of bitvectors indicating the set of character sets which
 can represent all non-ASCII characters and ASCII characters, respectively,
 in the current buffer.
@@ -759,6 +759,10 @@ character sets, respectively, present in the current buffer.
 Pass NO-ERROR to `latin-unity-remap-region'."
 
   ;; may God bless and keep the Mule ... far away from us!
+  ;; #### We can canonicalize here with impunity.  Transformations of the
+  ;; characters in the buffer will not change the representation of newline.
+  ;; It's the return value to -sanity-check that possibly needs EOL.
+  (when codesys (setq codesys (latin-unity-base-name codesys)))
   (when (memq codesys latin-unity-iso-8859-1-aliases)
     (setq codesys 'iso-8859-1))
 
@@ -769,11 +773,8 @@ Pass NO-ERROR to `latin-unity-remap-region'."
     (when latin-unity-debug (message (format "%s" (list codesys gr))))
     (cond
      ((null codesys) nil)
-     ;; #### this (csn (csb (fcs cs))) brain-damage should be replaced by
-     ;; (latin-unity-ucs-p cs), etc!!
-     ((memq (latin-unity-base-name (find-coding-system codesys))
-	    latin-unity-ucs-list)
-      codesys)
+     ;; #### this should be replaced by (latin-unity-ucs-p cs), etc!!
+     ((memq codesys latin-unity-ucs-list) codesys)
      ;; this is just an optimization, as the next arm should catch it
      ;; note we can assume ASCII here, as if GL is JIS X 0201 Roman,
      ;; GR will be JIS X 0201 Katakana

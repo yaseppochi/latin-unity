@@ -1,6 +1,6 @@
 ;;; latin-unity-tables.el --- initialize latin-unity-equivalences
 ;; Do not edit --- automatically generated.
-;; Created: 2002 October 25
+;; Created: 2002 October 30
 (provide 'latin-unity-tables)
 (defconst latin-unity-equivalences
   (let ((table (make-char-table 'generic)))
@@ -1129,6 +1129,6 @@
     (put-char-table (make-char 'latin-iso8859-16 127) (vector #x1D1 (make-char 'latin-iso8859-1 127) nil nil nil (make-char 'latin-iso8859-9 127) nil (make-char 'latin-iso8859-14 127) (make-char 'latin-iso8859-15 127) (make-char 'latin-iso8859-16 127) nil nil nil) table)
     table)
   "Map a (Latin) Mule character to the set of character sets containing it.
-Created: 2002 October 25")
-(put 'latin-unity-equivalences 'creation-date-string "2002 October 25")
+Created: 2002 October 30")
+(put 'latin-unity-equivalences 'creation-date-string "2002 October 30")
 ;;; end of latin-unity-tables.el

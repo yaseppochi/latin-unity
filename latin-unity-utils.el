@@ -241,6 +241,7 @@
   ;; correctly (maybe because they're not built in?)
   ;; Latin-7 (ISO 8859/13)
   (when (find-coding-system 'iso-8859-13)
+    (message "Processing charset %s ..." 'iso-8859-13)
     (mapc (lambda (pair)
 	    (let ((ucs (cdr pair))
 		  (ch (make-char 'latin-iso8859-13 (car pair))))
@@ -270,6 +271,7 @@
 	    (#xF8 . #x0173) (#xF9 . #x0142) (#xFA . #x015B) (#xFB . #x016B)
 	    (#xFC . #x00FC) (#xFD . #x017C) (#xFE . #x017E) (#xFF . #x2019))))
   (when (find-coding-system 'iso-8859-14)
+    (message "Processing charset %s ..." 'iso-8859-14)
     (mapc (lambda (pair)
 	    (let ((ucs (cdr pair))
 		  (ch (make-char 'latin-iso8859-14 (car pair))))
@@ -299,6 +301,7 @@
 	    (#xF8 . #x00F8) (#xF9 . #x00F9) (#xFA . #x00FA) (#xFB . #x00FB)
 	    (#xFC . #x00FC) (#xFD . #x00FD) (#xFE . #x0177) (#xFF . #x00FF))))
   (when (find-coding-system 'iso-8859-15)
+    (message "Processing charset %s ..." 'iso-8859-15)
     (loop for i from #x20 to #x7F do
       (let* ((ch (make-char 'latin-iso8859-15 i)) ; multibyte dirty
 	     (ucs (+ i #x80)))
