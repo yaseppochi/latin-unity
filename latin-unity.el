@@ -5,7 +5,7 @@
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
 ;; Created: 2002 January 17
-;; Last-modified: 2002 March 23
+;; Last-modified: 2003 August 9
 
 ;; This file is part of XEmacs.
 
@@ -44,8 +44,10 @@
 
 (require 'latin-unity-vars)
 (require 'latin-unity-latin7)		; define iso-8859-13
+;; uncomment to add support for ISO 8859/14
+;(require 'latin-unity-latin8)		; define iso-8859-14
 (require 'latin-unity-latin9)		; define iso-8859-15
-;; #### uncomment when we have ISO 8859/16
+;; uncomment to add support for ISO 8859/16
 ;(require 'latin-unity-latin10)		; define iso-8859-16
 (if (or (fboundp 'character-to-unicode)	; XEmacs  post-21.5.5
 	(fboundp 'char-to-ucs))		; Mule-UCS already loaded
@@ -199,7 +201,6 @@ Not a user variable.  Customize input of coding systems or charsets via
     regrets-only  never change it, warn that coding system is inappropriate
     warn          always change it, warn user of change
     ask           ask user's permission."
-  ;; #### really should not have to have the list above and :doc strings
   :type '(choice
 	  (const nil  :doc "never change, return silently")
 	  (const t    :doc "always change, return silently")
@@ -528,7 +529,9 @@ Return value is not currently useful."
 ;; FILENAME, VISIT, or LOCKNAME could be used to default the coding system,
 ;; but this would conflict with the semantics of `write-region'.
 ;; #### The efficiency of this function can clearly be improved.
-;; #### Maybe this function should have a no-ask for the sake of testing?
+;; #### This function should be set up to call the check functions in a
+;; condition-case, and call out to error handlers.  Then tests could be
+;; written more easily.
 
 ;;;###autoload
 (defun latin-unity-sanity-check (begin end filename append visit lockname
@@ -1025,6 +1028,8 @@ Returns a symbol naming a coding system, or t to mean \"not a coding system\".
 ;; ripp'd untimely from the hack-local-variables-* stuff in files.el.
 
 ;; #### probably this function should be hacked like the prop-line version
+;; #### possibly this function should error on syntax errors (this doesn't
+;;      prevent loading the file, but does prevent saving it)
 (defun latin-unity-hack-cookies-last-page (&optional force)
   "Find a coding cookie in the local variables block on the last page.
 Warn that XEmacs doesn't support coding cookies there.
@@ -1036,13 +1041,22 @@ non-nil, fix the cookie without prompt.
     (save-restriction
       (widen)
       (goto-char (point-max))
-      (search-backward "\n\^L" (max (- (point-max) 3000) (point-min)) 'move)
+      (search-backward "" (max (- (point-max) 3000) (point-min)) 'move)
       (when (let ((case-fold-search t))
-	      (search-forward "Local Variables:" nil t))
+	      (and (search-forward "\\<Local Variables:" nil t)
+		   (if (not (search-forward "\\<Local Variables:" nil t))
+		       t
+		     (warn "Two local variables sections found, ignoring.")
+		     nil)))
 	(let ((continue t)
-	      prefix prefixlen suffix start)
+	      problems prefix prefixlen suffix)
 	  ;; The prefix is what comes before "local variables:" in its line.
 	  ;; The suffix is what comes after "local variables:" in its line.
+	  ;; Whitespace immediately preceding "local variables:" _is_ part
+	  ;; of prefix; whitespace immediately following "local variables:"
+	  ;; _is not_ part of suffix.  This means that you can have more
+	  ;; indentation than "local variables:" has, but not less, while
+          ;; you can pad the suffix with whitespace for nice alignment.
 	  (skip-chars-forward " \t")
 	  (or (eolp)
 	      (setq suffix (buffer-substring (point)
@@ -1057,43 +1071,66 @@ non-nil, fix the cookie without prompt.
 	  (if suffix (setq suffix (concat (regexp-quote suffix) "$")))
 	  (while continue
 	    ;; Look at next local variable spec.
-	    (if selective-display (re-search-forward "[\n\C-m]")
+	    (if selective-display
+		(re-search-forward "[\n\C-m]")
 	      (forward-line 1))
 	    ;; Skip the prefix, if any.
 	    (if prefix
 		(if (looking-at prefix)
 		    (forward-char prefixlen)
-		  (warn "Local variables entry is missing the prefix")))
+		  (setq problems
+			(list "Local variables entry is missing the prefix"))))
 	    ;; Find the variable name; strip whitespace.
 	    (skip-chars-forward " \t")
-	    (setq start (point))
-	    (skip-chars-forward "^:\n")
-	    (if (eolp) (warn "Missing colon in local variables entry"))
-	    (skip-chars-backward " \t")
-	    (let ((str (buffer-substring start (point)))
-		  val head tail)
-	      ;; Setting variable named "end" means end of list.
-	      (cond
-	       ((string-equal (downcase str) "end")
-		(setq continue nil))
-	       ((string-equal str "coding")
-		(setq latin-unity-coding-cookies-found
-		      (1+ latin-unity-coding-cookies-found))
-		(warn "Coding cookie in local variables unsupported")
-		(when (> latin-unity-coding-cookies-found 1)
-		  (warn "Multiple coding cookies found"))
+	    (let (var val head tail)
+	      ;; #### need to use lisp-mode syntax table here;
+	      ;; 2d arg of char-syntax
+	      ;; #### need to hack eol here
+	      (if (or (eql (char-after) ?:)
+		      (not (eql (char-syntax (char-after)) ?_)))
+		  (setq problems (cons "no local variable found" problems))
+		(setq var (read (current-buffer)))
+		;; magic cookies suck AND SWALLOW!
+		;; #### I'll be damned if I'll worry about colon-terminated
+		;; variable names here -- what if there are MULTIPLE COLONS?
+		(let ((name (symbol-name var)))
+		  (setq var (if (eql ?: (aref name (1- (length name))))
+				(forward-char -1) ; back up over colon
+				(substring name 0 -1)
+			      name)))
+		(skip-chars-forward " \t")
+		(if (equal (char-after) ?:)
+		    (forward-char 1)
+		  (setq problems (cons "Missing colon in local variables entry"
+				       problems))))
+	      ;; end: probably doesn't have a value
+	      (if (string-equal "end" var)
+		  (setq continue nil)
 		;; read the variable value.
-		(skip-chars-forward "^:")
-		(forward-char 1)
 		(skip-chars-forward " \t")
-		(setq head (point))
-		(setq val (read (current-buffer)))
-		(setq tail (point))
-		(skip-chars-backward "\n")
-		(skip-chars-forward " \t")
-		(or (if suffix (looking-at suffix) (eolp))
-		    (warn "Local variables entry is terminated incorrectly"))
-		(latin-unity-hack-coding-cookie val head tail force))))))))))
+		;; check for effective end-of-line
+		(if (or (eolp)
+			(looking-at "\\s<\\|\\s1\\s2\\|\\s5\\s6"))
+		    (setq problems (cons "no value found for local variable"
+					 problems))
+		  (setq head (point))
+		  ;; #### this can error on a syntax error (eg "( . nil)")
+		  (setq val (read (current-buffer)))
+		  (setq tail (point))
+		  (skip-chars-forward " \t")
+		  (unless (if suffix (looking-at suffix) (eolp))
+		    (setq problems
+			  (cons "Local variables entry has incorrect suffix"
+				problems))))
+		(cond
+		 (problems (while problems
+			     (warn (car problems))
+			     (setq problems (cdr problems)))
+			   (setq continue nil))
+		 ((string-match "coding" var)
+		  (warn "Coding cookie in local variables unsupported")
+		  (latin-unity-hack-coding-cookie val head tail force))))
+	      )))))))
 
 (defun latin-unity-hack-cookies-prop-line (&optional force)
   "Find a coding cookie in the first (non-shebang) line of the file.
@@ -1105,8 +1142,7 @@ non-nil, fix the cookie without prompt.
     (save-restriction
       (widen)
       (goto-char (point-min))
-      ;; Excuse me?!?
-      (skip-chars-forward " \t\n\r")
+      (skip-chars-forward " \t\n\r")	; does exec(2) gobble leading space?
       (let ((end (save-excursion
 		   ;; If the file begins with "#!"
 		   ;; (un*x exec interpreter magic), look
@@ -1115,23 +1151,23 @@ non-nil, fix the cookie without prompt.
 		   ;; put them in the first line of
 		   ;; such a file without screwing up
 		   ;; the interpreter invocation.
-		   (end-of-line (and (looking-at "^#!") 2))
+		   (end-of-line (if (looking-at "^#!") 2 1))
 		   (point))))
 	;; Parse the -*- line into the `result' alist.
-	(when (search-forward "-*-" end t)
+	(let* ((stx (and (search-forward "-*-" end t) (point)))
+	       ;; if there are more than two "-*-", use the first two
+	       (etx (and stx (search-forward "-*-" end t) (- (point) 3))))
 	  ;; insist on correct format and silently ignore otherwise
-	  (while (re-search-forward "\\(\\S_coding:[ \t]*\\).*-\\*-"
-				    (point-at-eol) t)
-	    (goto-char (match-end 1))
-	    (let* ((head (point))
-		   (val (read (current-buffer)))
-		   (tail (point)))
-	      (setq latin-unity-coding-cookies-found
-		    (1+ latin-unity-coding-cookies-found))
-	      (when (> latin-unity-coding-cookies-found 1)
-		(warn "%d coding cookies found; you should have only one."
-		      latin-unity-coding-cookies-found))
-	      (latin-unity-hack-coding-cookie val head tail force))))))))
+	  (cond
+	   ((null stx) nil)
+	   ((null etx) (warn "unterminated prop line, ignoring"))
+	   (t (goto-char stx)
+	      (while (re-search-forward "coding:[ \t]*" etx t)
+		(goto-char (match-end 0))
+		(let* ((head (point))
+		       (val (read (current-buffer)))
+		       (tail (point)))
+		  (latin-unity-hack-coding-cookie val head tail force))))))))))
 
 (defun latin-unity-hack-coding-cookie (value begin end &optional force)
   "Fixup a coding cookie.
@@ -1139,6 +1175,11 @@ If VALUE differs from `buffer-file-coding-system', ask the user if the
 coding cookie found between BEGIN and END should be changed.  If optional
 argument FORCE is non-nil, fix the cookie without prompt.
 #### Probably there should be an argument for the coding system to set."
+  (setq latin-unity-coding-cookies-found
+	(1+ latin-unity-coding-cookies-found))
+  (when (> latin-unity-coding-cookies-found 1)
+    (warn "%d coding cookies found; you should have only one."
+	  latin-unity-coding-cookies-found))
   (let ((bfcs (latin-unity-base-name buffer-file-coding-system)))
     (unless (eq value bfcs)
       (when (or force
@@ -1163,13 +1204,13 @@ with RET BackSpace), and save."
   (erase-buffer)
   (insert "From here ...\n")
   (insert "Latin-1: f")
-  (insert (make-char 'latin-iso8859-1 #xFC)) ; u umlaut, also in Latin-2
+  (insert (make-char 'latin-iso8859-1 #xFC)) ; u diaeresis, also in Latin-2
   (insert "r\n\nLatin-2: Nik")		; my apologies if I misremembered
-  (insert (make-char 'latin-iso8859-2 57)) ; s caron, not in Latin-1
+  (insert (make-char 'latin-iso8859-2 #xB9)) ; s caron, not in Latin-1
   (insert ?i)
-  (insert (make-char 'latin-iso8859-2 102)) ; c acute, not in Latin-1
+  (insert (make-char 'latin-iso8859-2 #xE6)) ; c acute, not in Latin-1
   (insert "\n... to here is representable in Latin-2 but not Latin-1.\n")
-  (insert (make-char 'latin-iso8859-1 255)) ; y daieresis, not in Latin-2
+  (insert (make-char 'latin-iso8859-1 #xFF)) ; y daieresis, not in Latin-2
   (insert "\nFrom top to here is not representable in Latin-[12].\n")
 
   (insert "

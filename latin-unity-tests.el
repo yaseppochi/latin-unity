@@ -89,29 +89,32 @@
 	       (list 'iso-8859-1 'iso-8859-15
 		     (format "test accentu%c, avec %curo."
 			     ;; LATIN SMALL LETTER E WITH ACUTE 
-			     (make-char 'latin-iso8859-1 #x69)
+			     (make-char 'latin-iso8859-1 #xE9)
 			     ;; EURO SIGN
-			     (make-char 'latin-iso8859-15 #x24)))
+			     (make-char 'latin-iso8859-15 #xA4)))
 	       ;; We had problems with plain Latin-1 :-(
 	       (list 'iso-8859-1 'iso-8859-1
 		     (format "Ville Skytt%c  <ville.skytta@xemacs.org>"
 			     ;; LATIN SMALL LETTER A WITH DIAERESIS
-			     (make-char 'latin-iso8859-1 #x64)))
+			     (make-char 'latin-iso8859-1 #xE4)))
 	       (list 'iso-8859-1 'iso-8859-2
 		     (format "f%cr Hrvoje Nik%ci%c"
 			     ;; LATIN SMALL LETTER U WITH DIAERESIS
-			     (make-char 'latin-iso8859-1 #x7C)
+			     (make-char 'latin-iso8859-1 #xFC)
 			     ;; LATIN SMALL LETTER S WITH CARON
-			     (make-char 'latin-iso8859-2 57)
+			     (make-char 'latin-iso8859-2 #xB9)
 			     ;; LATIN SMALL LETTER C WITH ACUTE
-			     (make-char 'latin-iso8859-2 102)))
+			     (make-char 'latin-iso8859-2 #xE6)))
 	       (list 'iso-8859-1 'utf-8
 		     (format "f%cr Hrvoje, %cclept Nik%ci%c"
+			     ;; LATIN SMALL LETTER U WITH DIAERESIS
 			     (make-char 'latin-iso8859-1 #xFC)
-			     (make-char 'latin-iso8859-1 255)
-			     (make-char 'latin-iso8859-2 57)
 			     ;; LATIN SMALL LETTER Y WITH DIAERESIS
-			     (make-char 'latin-iso8859-2 102)))
+			     (make-char 'latin-iso8859-1 #xFF)
+			     ;; LATIN SMALL LETTER S WITH CARON
+			     (make-char 'latin-iso8859-2 #xB9)
+			     ;; LATIN SMALL LETTER C WITH ACUTE ACCENT
+			     (make-char 'latin-iso8859-2 #xE6)))
 	       )
 	     ))
 

@@ -1,3 +1,36 @@
+2004-05-14  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el: Add requires for Latin8 & Latin-10 (commented
+	out).
+	(latin-unity-example): Change to hexademical notation.
+	(latin-unity-sanity-check): Add comment on refactoring.
+
+	* latin-unity-tests.el: Label all non-ASCII characters.  Change
+	code points to hexadecimal for ease of consulting tables.
+
+	* README: Various updates, mostly related to Latin-9 and Latin-10.
+
+	* FAQ: Add title line.
+
+2004-03-18  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* BLURB: Mention EuroSign.
+
+2003-10-24  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-hack-cookies-last-page):
+	(latin-unity-hack-cookies-prop-line):
+	(latin-unity-hack-coding-cookie):
+	Move coding cookie count checks to `latin-unity-hack-coding-cookie'.
+
+	* latin-unity.texi: Fix the permission notice.  :-(
+	
+	* latin-unity-latin9.el (flet foo): Remove redundant parens and
+	bogus coding cookie.  Add keysyms for some Latin-9 characters.
+
+	* latin-unity.el (latin-unity-hack-cookies-prop-line): Do a better
+	job of parsing prop line.
+
 2003-11-09  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.09 released.

@@ -28,37 +28,111 @@
 @end macro
 
 @c Copying permissions, et al
-@c Note that this whole section is repeated twice, once for the Info
-@c version and once for TeX.  ####  How about HTML, etc?
+@c Note that this whole section is repeated thrice, once for the Info
+@c version, once for TeX, and once for HTML.
+@c Note that if you combine this document with others' work, you may
+@c need to change the permissions statement.  Make sure you do so in all
+@c three places.
+@c #### Probably not the right place for HTML.
+@html
+This file is part of XEmacs.  It documents the @pkgname{} package,
+which ensures that wherever possible representations of all Latin
+characters are drawn from the same 8-bit character set.
+     
+Copyright @copyright{} 2002, 2003 Free Software Foundation, Inc.
+     
+Permission is granted to make and distribute verbatim or modified copies
+of this manual provided that the copyright notice above is preserved,
+and at least one of the numbered paragraphs below up to the phrase "End
+of permissions notice." is included, under the terms of any of the
+licenses enumerated below.
+
+1. The GNU General Public License, version 2 or any later version
+published by the Free Software Foundation, Inc.  A copy of the GNU
+General Public License was included with your copy of XEmacs.
+Alternatively, you may request a copy from the Free Software Foundation,
+Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+2. The license used for XEmacs documentation (see the file
+man/xemacs/xemacs.texi distributed with XEmacs).
+
+3. The GNU Free Documentation License (available from the Free Software
+Foundation at the address above).
+
+End of permissions notice.
+
+Because the XEmacs documentation license and the GNU Free Documentation
+License are not free software licenses, and are mutually incompatible
+with each other and with the GNU General Public License, it is desirable
+that the permissions given here be preserved if possible.  This normally
+requires that you write fresh text for any additions or modifications to
+this file, rather than copying code or comments from other sources.  The
+exceptions are if you are sole copyright holder for the other source, or
+if you receive permission from the holders of the copyrights for the
+other sources.
+
+That is, if you merge code or comments from a file licensed to you only
+under the GNU General Public License you @emph{may not} distribute
+under the documentation licenses or with a dual license; such a
+combination may be distributed under the GNU General Public License
+@emph{only}.  Similarly, if you copy text from a file licensed to you
+only under the XEmacs documentation license or the GNU Free
+Documentation License you may distribute the result @emph{only} under
+the appropriate license.
+@end html
+
 @ifinfo
 This file is part of XEmacs.  It documents the @pkgname{} package,
 which ensures that wherever possible representations of all Latin
 characters are drawn from the same 8-bit character set.
      
-Copyright @copyright{} 2002 Free Software Foundation, Inc.
+Copyright @copyright{} 2002, 2003 Free Software Foundation, Inc.
      
-Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.
-     
+Permission is granted to make and distribute verbatim or modified copies
+of this manual provided that the copyright notice above is preserved,
+and at least one of the numbered paragraphs below up to the phrase "End
+of permissions notice." is included, under the terms of any of the
+licenses enumerated below.
+
 @ignore 
 Permission is granted to process this file through TeX and print the
 results, provided the printed document carries a copying permission
 notice identical to this one except for the removal of this paragraph
 (this paragraph not being relevant to the printed manual).
-   
+
 @end ignore
-Permission is granted to copy and distribute modified versions of this
-manual under the conditions for verbatim copying, provided also that the
-sections entitled ``Copying'' and ``GNU General Public License'' are
-included exactly as in the original, and provided that the entire
-resulting derived work is distributed under the terms of a permission
-notice identical to this one.
-     
-Permission is granted to copy and distribute translations of this manual
-into another language, under the above conditions for modified versions,
-except that this permission notice may be stated in a translation
-approved by the Free Software Foundation.
+1. The GNU General Public License, version 2 or any later version
+published by the Free Software Foundation, Inc.  A copy of the GNU
+General Public License was included with your copy of XEmacs.
+Alternatively, you may request a copy from the Free Software Foundation,
+Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+2. The license used for XEmacs documentation (see the file
+man/xemacs/xemacs.texi distributed with XEmacs).
+
+3. The GNU Free Documentation License (available from the Free Software
+Foundation at the address above).
+
+End of permissions notice.
+
+Because the XEmacs documentation license and the GNU Free Documentation
+License are not free software licenses, and are mutually incompatible
+with each other and with the GNU General Public License, it is desirable
+that the permissions given here be preserved if possible.  This normally
+requires that you write fresh text for any additions or modifications to
+this file, rather than copying code or comments from other sources.  The
+exceptions are if you are sole copyright holder for the other source, or
+if you receive permission from the holders of the copyrights for the
+other sources.
+
+That is, if you merge code or comments from a file licensed to you only
+under the GNU General Public License you @emph{may not} distribute
+under the documentation licenses or with a dual license; such a
+combination may be distributed under the GNU General Public License
+@emph{only}.  Similarly, if you copy text from a file licensed to you
+only under the XEmacs documentation license or the GNU Free
+Documentation License you may distribute the result @emph{only} under
+the appropriate license.
 @end ifinfo
 
 @tex
@@ -70,29 +144,59 @@ approved by the Free Software Foundation.
 @author Stephen J. Turnbull
 @page
 
-This manual is part of XEmacs.  It documents the @pkgname{} package,
+This file is part of XEmacs.  It documents the @pkgname{} package,
 which ensures that wherever possible representations of all Latin
 characters are drawn from the same 8-bit character set.
      
-Copyright @copyright{} 2002 Free Software Foundation, Inc.
+Copyright @copyright{} 2002, 2003 Free Software Foundation, Inc.
      
 @vskip 0pt plus 1filll
-Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.
-     
-Permission is granted to copy and distribute modified versions of this
-manual under the conditions for verbatim copying, provided also that the
-sections entitled ``Copying'' and ``GNU General Public License'' are
-included exactly as in the original, and provided that the entire
-resulting derived work is distributed under the terms of a permission
-notice identical to this one.
-     
-Permission is granted to copy and distribute translations of this manual
-into another language, under the above conditions for modified versions,
-except that this permission notice may be stated in a translation
-approved by the Free Software Foundation.
+Permission is granted to make and distribute verbatim or modified copies
+of this manual provided that the copyright notice above is preserved,
+and at least one of the numbered paragraphs below up to the phrase "End
+of permissions notice." is included, under the terms of any of the
+licenses enumerated below.
 
+@ignore 
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries a copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+   
+@end ignore
+1. The GNU General Public License, version 2 or any later version
+published by the Free Software Foundation, Inc.  A copy of the GNU
+General Public License was included with your copy of XEmacs.
+Alternatively, you may request a copy from the Free Software Foundation,
+Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+2. The license used for XEmacs documentation (see the file
+man/xemacs/xemacs.texi distributed with XEmacs).
+
+3. The GNU Free Documentation License (available from the Free Software
+Foundation at the address above).
+
+End of permissions notice.
+
+Because the XEmacs documentation license and the GNU Free Documentation
+License are not free software licenses, and are mutually incompatible
+with each other and with the GNU General Public License, it is desirable
+that the permissions given here be preserved if possible.  This normally
+requires that you write fresh text for any additions or modifications to
+this file, rather than copying code or comments from other sources.  The
+exceptions are if you are sole copyright holder for the other source, or
+if you receive permission from the holders of the copyrights for the
+other sources.
+
+That is, if you merge code or comments from a file licensed to you only
+under the GNU General Public License you @emph{may not} distribute
+under the documentation licenses or with a dual license; such a
+combination may be distributed under the GNU General Public License
+@emph{only}.  Similarly, if you copy text from a file licensed to you
+only under the XEmacs documentation license or the GNU Free
+Documentation License you may distribute the result @emph{only} under
+the appropriate license.
+     
 @end titlepage
 @page
 

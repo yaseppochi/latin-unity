@@ -1,11 +1,11 @@
-;;; latin-unity-latin9.el --- Define language environment -*- coding: iso-2022-7 -*-
+;;; latin-unity-latin9.el --- Define language environment
 
-;; Copyright (C) 2002 Free Software Foundation, Inc
+;; Copyright (C) 2002, 2003 Free Software Foundation, Inc
 
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
 ;; Created: 2002 March 7
-;; Last-modified: 2002 March 23
+;; Last-modified: 2003 August 9
 
 ;; This file is part of XEmacs.
 
@@ -60,7 +60,7 @@
   ;; For syntax of Latin-9 characters.
   (require 'cl)
   (load "cl-macs" nil t)		; howcum no #'provide?
-  (loop for c from 64 to 127		; from ',A@(B' to ',A(B'
+  (loop for c from 64 to 127		; from 'À' to 'ÿ'
     do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
   (mapc (lambda (c)
 	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
@@ -119,14 +119,25 @@ We also have a German specific language environment \"German\".")))
 		   nil))))
 
 ;; #### move these to a separate file for keysyms.
+;; I think these are all the ones not in Latin-1.
 
 ;;;###autoload
-(unless (lookup-key global-map [EuroSign])
-  (define-key global-map [EuroSign] #'self-insert-command))
+(flet ((define-keysym-as-char (keysym character)
+	 (unless (lookup-key global-map (vector keysym))
+	   (define-key global-map (vector keysym) #'self-insert-command))
+	 (unless (get keysym 'ascii-character)
+	   (put keysym 'ascii-character character)))
+       (foo (k o)
+	 (define-keysym-as-char k (make-char 'latin-iso8859-15 o))))
+  (foo 'EuroSign   #x24)
+  (foo 'Scaron     #x26)
+  (foo 'scaron     #x28)
+  (foo 'Zcaron     #x34)
+  (foo 'zcaron     #x38)
+  (foo 'OE         #x3C)
+  (foo 'oe         #x3D)
+  (foo 'Ydiaeresis #x3E))
 
-;;;###autoload
-(unless (get 'EuroSign 'ascii-character)
-  (put 'EuroSign 'ascii-character (make-char 'latin-iso8859-15 #x24)))
 
 (provide 'latin-unity-latin9)
 

@@ -35,13 +35,13 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
 ***** Features:
 
   o If a buffer contains only ASCII and ISO-8859 Latin characters, the
-    buffer can be "unified", that is treated so that all characters are
-    translated to one charset that includes them all.  If the current
-    buffer coding system is not sufficient, the package will suggest
-    alternatives.  It prefers ISO-8859 encodings, but also suggests
-    UTF-8 (if available; 21.4+ feature, currently requires Mule-UCS),
-    ISO 2022 7-bit, or X Compound Text if no ISO 8859 coding system is
-    comprehensive enough.
+    buffer can be "unified", that is treated so that all characters
+    are translated to one charset that includes them all.  If the
+    current buffer coding system is not sufficient, the package will
+    suggest alternatives.  It prefers ISO-8859 encodings, but also
+    suggests UTF-8 (if available; 21.4+ feature, currently requires
+    Mule-UCS for 21.4 versions), ISO 2022 7-bit, or X Compound Text
+    if no ISO 8859 coding system is comprehensive enough.
 
     It allows the user to use other coding systems, and the list of
     suggested coding systems is Customizable.
@@ -68,15 +68,34 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
     'latin-unity-latin7)' and `(require 'latin-latin7-input)', and not
     do `(latin-unity-install)'.
 
+  o ISO 8859/14 for XEmacs 21.4 and 21.1 (both untested).
+    To get 'iso-8859-14 preferred to 'iso-8859-1 in autodetection, use
+    (set-coding-category-system 'iso-8-1 'iso-8859-14).  (untested)
+    Alternatively set language environment to Latin-8.
+
+    If all you want is ISO 8859/14 support, you can `(require
+    'latin-unity-latin8)', and not do `(latin-unity-install)'.
+    Latin-8 does not yet have an input method.
+
   o ISO 8859/15 for XEmacs 21.4 (moderately tested) and 21.1 (lightly
-    tested), including binding the EuroSign keysym to ISO 8859/15 0xA4.
-    To get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
+    tested), including binding the EuroSign keysym to ISO 8859/15 0xA4
+    (as well as the other "new" keysyms needed for ISO 8859/15).  To
+    get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
     (set-coding-category-system 'iso-8-1 'iso-8859-15).  (untested)
     Alternatively set language environment to Latin-9.
 
     If all you want is ISO 8859/15 support, you can `(require
     'latin-unity-latin9)' and `(require 'latin-euro-input)', and not
     do `(latin-unity-install)'.
+
+  o ISO 8859/16 for XEmacs 21.4 and 21.1 (both untested).
+    To get 'iso-8859-16 preferred to 'iso-8859-1 in autodetection, use
+    (set-coding-category-system 'iso-8-1 'iso-8859-16).  (untested)
+    Alternatively set language environment to Latin-10.
+
+    If all you want is ISO 8859/16 support, you can `(require
+    'latin-unity-latin10)', and not do `(latin-unity-install)'.
+    Latin-10 does not yet have an input method.
 
   o Hooks into `write-region' to prevent (or at least drastically
     reduce the probability of) introduction of ISO 2022 escape
@@ -102,11 +121,15 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
     usual install, configure, and operating instructions.
 
   o latin-unity itself depends only on mule-base in operation.  Table
-    generation depends on Unicode support such as Mule-UCS or Ben's
-    ben-mule-21-5 workspace, and the package build currently requires
-    Mule-UCS.  The input method depends on LEIM and fsf-compat.
+    generation depends on Unicode support such as Mule-UCS or XEmacs
+    >= 21.5.6, and the package build currently requires Mule-UCS.  The
+    input method depends on LEIM and fsf-compat.
 
 Current misfeatures:
+
+  o Needs to be refactored so that automatic tests of functionality
+    currently buried in interactive functions can be written.  See
+    comment on `latin-unity-sanity-check'.
 
   o Doesn't automatically save pure ASCII files in ASCII superset
     encodings like iso-2022-jp.  Workaround:  put an ISO 8859 coding
@@ -127,13 +150,11 @@ Current misfeatures:
     there is no way to autoload a charset.  (Can't be fixed without
     changing XEmacs core.)
 
-Planned, mostly near future:
+Planned, sooner or later:
 
   o Fix the misfeatures.
 
   o Fix JIS Roman (as an alternative to ASCII) support.
-
-  o Support Latin-10 (ISO 8859/16) and maybe others.
 
   o More UI features (like highlighting unrepresentable chars in buffer).
 
@@ -168,9 +189,15 @@ latin-unity-latin7.el defines ISO 8859/13 and the Latin-7 environment.
 
 latin-latin7-input.el contains a Quail input method for Latin 7.
 
+latin-unity-latin8.el defines ISO 8859/14 and the Latin-8 environment.
+
 latin-unity-latin9.el defines ISO 8859/15 and the Latin-9 environment.
 
 latin-euro-input.el contains Dave Love's Quail input method for Latin 9.
+
+latin-unity-latin10.el defines ISO 8859/16 and the Latin-10 environment.
+
+(Latin-8 and Latin-10 do not have input methods yet.)
 
 latin-unity-tables.el contains the table of feasible character sets and
 equivalent Mule characters from other character sets for the various Mule
