@@ -43,7 +43,7 @@
   ;; Create character set
   (make-charset
    'latin-iso8859-15 "ISO8859-15 (Latin 9)"
-   ;; sheesh, what we do for backward-bug-compatibility
+   ;; sheesh, what we do for backward compatibility
    ;; #### this test and the similar one below probably should be
    ;; reformulated to use condition-case
    (append (if (emacs-version>= 21 4)
@@ -60,7 +60,7 @@
   ;; For syntax of Latin-9 characters.
   (require 'cl)
   (load "cl-macs" nil t)		; howcum no #'provide?
-  (loop for c from 64 to 127		; from 'À' to 'ÿ'
+  (loop for c from 64 to 127		; from ',A@(B' to ',A(B'
     do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
   (mapc (lambda (c)
 	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
@@ -89,7 +89,7 @@
     (interactive)
     (set-language-environment "Latin-9"))
 
-  ;; sheesh, what we do for backward-bug-compatibility
+  ;; sheesh, what we do for backward compatibility
   (apply #'set-language-info-alist
 	 (append `("Latin-9"
 		   ((charset ascii latin-iso8859-15)

@@ -2,7 +2,7 @@
 
 	* latin-unity-latin9.el: Make set-language-info-alist and
 	make-charset forms conditional on XEmacs version to account for
-	21.1 bugs and API differences.
+	21.1 API differences.
 
 2002-03-27  Steve Youngs  <youngs@xemacs.org>
 
