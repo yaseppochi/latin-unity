@@ -54,8 +54,8 @@
      direction l2r))
   ;; For syntax of Latin-9 characters.
   (require 'cl)
-  (load-library "cl-macs")		; howcum no #'provide?
-  (loop for c from 64 to 127		; from ',b@(B' to ',b(B'
+  (load "cl-macs" nil t)		; howcum no #'provide?
+  (loop for c from 64 to 127		; from 'À' to 'ÿ'
     do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
   (mapc (lambda (c)
 	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))

@@ -1,3 +1,17 @@
+2002-03-25  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-utils.el (load cl-macs): Inhibit messages.
+
+	* Makefile: Bump AUTHOR_VERSION and remove reference to MANUAL.
+
+	* latin-unity.el (latin-unity-recommend-representation): Give
+	values of special coding systems as well as the tag.
+
+	* latin-unity.texi (Basic Functionality):
+	* latin-unity.el (latin-unity-ucs-list):
+	* README:
+	Document the 7-bit grodiness and "pure ASCII" misfeature.
+
 2002-03-25  Steve Youngs  <youngs@xemacs.org>
 
 	* Makefile (VERSION): 1.01 released.

@@ -45,7 +45,7 @@
 
 ;;; Requires
 (require 'cl)
-(load-library "cl-macs")	; howcum no #'provide?
+(load "cl-macs" nil t)			; howcum no #'provide?
 (require 'latin-unity-latin9)
 ;(require 'latin-unity-latin10)	; #### when we have it
 (require 'latin-unity-vars)

@@ -23,7 +23,7 @@
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 1.01
-AUTHOR_VERSION = 1.01
+AUTHOR_VERSION = 1.02
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
 PKG_TYPE = regular
@@ -39,7 +39,6 @@ PRELOADS=-l cl-macs -l latin-unity-latin9.el -l latin-unity-vars.el
 
 TEXI_FILES = $(PACKAGE).texi
 INFO_FILES = $(PACKAGE).info
-MANUAL = $(PACKAGE)
 
 DATA_1_FILES = ChangeLog Makefile README BLURB
 DATA_1_DEST = $(PACKAGE)

@@ -92,8 +92,9 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
 
 Current misfeatures:
 
-  o Must load latin-unity-vars before reading a file with ISO 8859/15,
-    there is no way to autoload a charset.
+  o Doesn't automatically save pure ASCII files in ASCII superset
+    encodings like iso-2022-jp.  Workaround:  put an ISO 8859 coding
+    system in `latin-unity-preapproved-coding-system-list'.
 
   o Need `(require 'latin-euro-input)' to get Quail support.
 
@@ -105,6 +106,10 @@ Current misfeatures:
   o Package depends on Mule-UCS, LEIM (Quail), and fsf-compat.
 
   o This README is too long.
+
+  o Must load latin-unity-vars before reading a file with ISO 8859/15,
+    there is no way to autoload a charset.  (Can't be fixed without
+    changing XEmacs core.)
 
 Planned, mostly near future:
 

@@ -309,11 +309,24 @@ List of coding systems considered to be universal.
 The default value is @code{'(utf-8 iso-2022-7 ctext escape-quoted)}.
 
 Order matters; coding systems earlier in the list will be preferred when
-recommending a coding system.
+recommending a coding system.  These coding systems will not be used
+without querying the user (unless they are also present in
+@code{latin-unity-preapproved-coding-system-list}), and follow the
+@code{latin-unity-preferred-coding-system-list} in the list of suggested
+coding systems.
 
-@samp{escape-quoted} is a special coding system used for autosaves and
-compiled Lisp in Mule.  You should not delete this, and it is rare that
-a user would want to use it directly.
+If none of the preferred coding systems are feasible, the first in
+this list will be the default.
+
+Notes on certain coding systems:  @code{escape-quoted} is a special
+coding system used for autosaves and compiled Lisp in Mule.  You should
+not delete this, although it is rare that a user would want to use it
+directly.  @pkgname{} does not try to be \"smart\" about other general
+ISO 2022 coding systems, such as ISO-2022-JP.  (They are not recognized
+as equivalent to @code{iso-2022-7}.)  If your preferred coding system is
+one of these, you may consider adding it to @code{latin-unity-ucs-list}.
+However, this will typically have the side effect that (eg) ISO 8859/1
+files will be saved in 7-bit form with ISO 2022 escape sequences.
 @end defopt
 
 
@@ -326,7 +339,7 @@ List of coding systems used without querying the user if feasible.
 
 The default value is @samp{(buffer-default preferred)}.
 
-The feasible first coding system in this list is used.  The special values
+The first feasible coding system in this list is used.  The special values
 @samp{preferred} and @samp{buffer-default} may be present:
 
 @table @code
@@ -342,8 +355,13 @@ the coding system.  Coding systems in @samp{latin-unity-ucs-list} are
 always considered feasible.  Other feasible coding systems are computed
 by @samp{latin-unity-representations-feasible-region}.
 
-Note that the first universal coding system in this list shadows all other
-coding systems.
+Note that the first universal coding system in this list shadows all
+other coding systems.  In particular, if your preferred coding system is
+a universal coding system, and @code{preferred} is a member of this
+list, @pkgname{} will blithely convert all your files to that coding
+system.  This is considered a feature, but it may surprise most users.
+Users who don't like this behavior should put @code{preferred} in
+@code{latin-unity-preferred-coding-system-list}.
 @end defopt
 
 
@@ -706,10 +724,10 @@ itself when a user enters characters using input methods associated with
 different coded character sets into a single buffer.
 
 There are two problems stemming from this design.  First, Mule
-represents the same character in different ways.  Abstractly, ',As(B'
+represents the same character in different ways.  Abstractly, 'σ'
 (LATIN SMALL LETTER O WITH ACUTE) can get represented as
 [latin-iso8859-1 #x73] or as [latin-iso8859-2 #x73].  So what looks like
-',Ass(B' in the display might actually be represented [latin-iso8859-1
+'σσ' in the display might actually be represented [latin-iso8859-1
 #x73][latin-iso8859-2 #x73] in the buffer, and saved as [#xF3 ESC - B
 #xF3 ESC - A] in the file.  In some cases this treatment would be
 appropriate (consider HYPHEN, MINUS SIGN, EN DASH, EM DASH, and U+4E00
@@ -756,7 +774,7 @@ set which contains all of the Latin characters in the buffer.
 The primary purpose of @pkgname{} is to fix the problem by giving the
 user the choice to change the representation of all characters to one
 character set and give sensible recommendations based on context.  In
-the ',As(B' example, either ISO 8859/1 or ISO 8859/2 is satisfactory, and
+the 'σ' example, either ISO 8859/1 or ISO 8859/2 is satisfactory, and
 both will be suggested.  In the EURO SIGN example, only ISO 8859/15
 makes sense, and that is what will be recommended.  In both cases, the
 user will be reminded that there are universal encodings available.
@@ -767,7 +785,7 @@ letter has the same code point in both character sets.  (Not entirely,
 but there are many examples of Latin characters that have different code
 points in different Latin-X sets.)
 
-Note in the ',As(B' example, that treating the buffer in this way will
+Note in the 'σ' example, that treating the buffer in this way will
 result in a representation such as [latin-iso8859-2
 #x73][latin-iso8859-2 #x73], and the file will be saved as [#xF3 #xF3].
 This is guaranteed to occasionally result in the second problem you

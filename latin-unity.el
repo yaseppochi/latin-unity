@@ -65,26 +65,29 @@
   '(buffer-default preferred)
   "*List of coding systems used without querying the user if feasible.
 
-The feasible first coding system in this list is used.  The special values
+The first feasible coding system in this list is used.  The special values
 'preferred and 'buffer-default may be present:
 
   buffer-default  Use the coding system used by `write-region', if feasible.
   preferred       Use the coding system specified by `prefer-coding-system'
                   if feasible.
 
-Note that if your preferred coding system is a universal coding system, and
-@samp{preferred} is a member of this list, @pkgname{} will blithely convert
-all your files to that coding system.  This is considered a feature, but it
-may surprise most users.  Users who don't like this behavior should put
-@samp{preferred} in @samp{latin-unity-preferred-coding-system-list}.
-
 \"Feasible\" means that all characters in the buffer can be represented by
 the coding system.  Coding systems in `latin-unity-ucs-list' are always
 considered feasible.  Other feasible coding systems are computed by
 `latin-unity-representations-feasible-region'.
 
+Most users will want at least one ISO 8859 coding system in this list,
+as otherwise pure ASCII files will not be preapproved.  (This will be
+satisfied implicitly by 'buffer-default or 'preferred for most users,
+but it can be annoying for users of ISO 2022 or EUC coding systems.)
+
 Note that the first universal coding system in this list shadows all other
-coding systems."
+coding systems.  In particular, if your preferred coding system is a universal
+coding system, and 'preferred is a member of this list, latin-unity will
+blithely convert all your files to that coding system.  This is considered a
+feature, but it may surprise most users.  Users who don't like this behavior
+should put 'preferred in `latin-unity-preferred-coding-system-list'."
   :type '(repeat symbol)
   :group 'latin-unity)
 
@@ -114,16 +117,26 @@ considered feasible.  Other feasible coding systems are computed by
 
 A universal coding system can represent all characters by definition.
 
-Order matters; coding systems earlier in the list will be preferred when
-recommending a coding system.  These coding systems will not be used without
-querying the user, and follow the `latin-unity-preferred-coding-system-list'
-in the list of suggested coding systems.
+Order matters; coding systems earlier in the list will be preferred
+when recommending a coding system.  These coding systems will not be
+used without querying the user (unless they are also present in
+`latin-unity-preapproved-coding-system-list'), and follow the
+`latin-unity-preferred-coding-system-list' in the list of suggested
+coding systems.
 
-If none of the preferred coding systems are feasible, the first in this list
-will be the default.
+If none of the preferred coding systems are feasible, the first in
+this list will be the default.
 
-Note: if `escape-quoted' is not a member of this list, you will be unable to
-autosave files or byte-compile Mule Lisp files."
+Notes on certain coding systems:  If `escape-quoted' is not a member of
+this list, you will be unable to autosave files or byte-compile Mule
+Lisp files.
+
+latin-unity does not try to be \"smart\" about general ISO 2022 coding
+systems, such as ISO-2022-JP.  (They are not recognized as equivalent
+to `iso-2022-7'.)  If your preferred coding system is one of these,
+consider adding it to `latin-unity-ucs-list'.  However, this will
+typically have the side effect that (eg) ISO 8859/1 files will be
+saved in 7-bit form with ISO 2022 escape sequences."
   :type '(repeat symbol)
   :group 'latin-unity)
 
@@ -512,10 +525,17 @@ BUFFER defaults to the current buffer."
       (erase-buffer)
       (insert (format "\
 Choose a coding system to save buffer %s.
-All preapproved coding systems (%s)
+All preapproved coding systems %s
 fail to appropriately encode some of the characters present in the buffer."
 		      (buffer-name buffer)
-		      latin-unity-preapproved-coding-system-list))
+		      (mapcar (lambda (x)
+				(if (memq x '(preferred buffer-default))
+				    (format "%s==%s" x
+					    (coding-system-name
+					     (find-coding-system
+					      (symbol-value x))))
+				  x))
+			      latin-unity-preapproved-coding-system-list)))
       ;; #### we could get this from PRESENT and avoid the auto-save silliness
       (when latin-unity-debug
 	(insert "  Character sets found are:\n\n   ")
