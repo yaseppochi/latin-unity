@@ -436,11 +436,11 @@ nothing except return nil if `write-region' handlers are inhibited."
       (flet ((massage-coding-system-name (x)
 	       ;; X can be 'buffer-default, 'preferred, a coding system
 	       ;; object, or a symbol naming a coding system
-	       (coding-system-name (cond ((and (eq sys 'buffer-default)
+	       (coding-system-name (cond ((and (eq x 'buffer-default)
 					       buffer-default))
-					 ((and (eq sys 'preferred)
+					 ((and (eq x 'preferred)
 					       preferred))
-					 (t sys)))))
+					 (t x)))))
 	(when latin-unity-debug (message "%s %s" csets psets) (sit-for 1))
 
 	(cond
@@ -458,7 +458,8 @@ nothing except return nil if `write-region' handlers are inhibited."
 		  (setq systems (cdr systems)))))))
 	 ;; ask the user about the preferred systems
 	 ;; #### RFE: It also would be nice if the offending characters
-	 ;; were marked in the buffer being checked.
+	 ;; were marked in the buffer being checked.  Evidently GNU Emacs
+	 ;; 20.x could do this.
 	 (t (let* ((recommended
 		    (latin-unity-recommend-representation begin end csets))
 		   (codesys (car recommended))

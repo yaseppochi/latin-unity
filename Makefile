@@ -19,11 +19,11 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-# Last-modified: 2002 March 23
+# Last-modified: 2002 May 4
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 1.04
-AUTHOR_VERSION = 1.04
+AUTHOR_VERSION = 1.05
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
 PKG_TYPE = regular

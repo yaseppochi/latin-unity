@@ -1,3 +1,9 @@
+2002-05-04  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* Makefile (AUTHOR_VERSION): Bump 1.04 -> 1.05.
+
+	* latin-unity.el (latin-unity-sanity-check): s/sys/x/ in flet.
+
 2002-05-01  Steve Youngs  <youngs@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.04 released.
