@@ -4,7 +4,7 @@
 
 2002-11-29  Ben Wing  <ben@xemacs.org>
 
-	* latin-unity-tables.el:
+	* Makefile: Use `compile' instead of hard-coded `all'.
 	* latin-unity-tables.el (latin-unity-equivalences):
 	Auto-regenerated.
 

@@ -60,7 +60,7 @@ GENERATED += $(AUTOLOAD_PATH)/custom-load.elc latin-unity-tables.elc
 
 ifeq ($(BUILD_WITHOUT_MULE),)
 
-all:: $(GENERATED) $(ELCS) $(INFO_FILES)
+compile:: $(GENERATED) $(ELCS) $(INFO_FILES)
 
 # Experimental rule to build latin-unity-tables.el.
 latin-unity-tables.el: latin-unity-vars.elc latin-unity-utils.elc
@@ -94,7 +94,7 @@ check: all
 binkit: binkit-common
 
 else
-all::
+compile::
 	@echo Latin-Unity requires XEmacs/Mule to build
 
 # Noop
