@@ -1,3 +1,7 @@
+2002-10-29  Rendhalver [Peter Brown]  <rendhalver@xemacs.org>
+
+	* Makefile: (VERSION): XEmacs package 1.06 released.
+
 2002-10-28  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
 
 	* latin-unity.texi (Theory of Operation): Fix bad Previous link.
