@@ -1,3 +1,9 @@
+2003-04-12  Steve Youngs  <youngs@xemacs.org>
+
+	* Makefile (REQ_MIN_VERSION): New, set to '21 4'
+	(CHECK_VERSION): New.
+	(bad-version): New.
+
 2003-03-21  Ben Wing  <ben@xemacs.org>
 
 	* .cvsignore: Add latin-unity*.html.
