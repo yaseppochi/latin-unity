@@ -162,11 +162,12 @@ For general users:
 * Theory of Operation::         How @pkgname{} works.
 * What latin-unity Cannot Do for You::  Inherent problems of 8-bit charsets.
 
-@c For programmers:
+For programmers:
 @c * Interfaces::                  Calling @pkgname{} from Lisp code.
+* Charsets and Coding Systems:: Reference lists with annotations.
 
-@c For maintainers:
-@c * Internals::                   Implementation details.
+For maintainers:
+* Internals::                   Utilities and implementation details.
 
 @c ** For small packages, with no or few subnodes, a detailmenu is not
 @c ** necessary.
@@ -253,9 +254,9 @@ the code point of the character, but may change the identity of the
 character.  @xref{Theory of Operation}.
 
 There are a few variables which determine which coding systems are
-always acceptable to @pkgname{}, @code{latin-unity-approved-ucs-list},
-@code{latin-unity-ignored-coding-system-list}, and
-@code{latin-unity-approved-coding-system-list}.  The latter two default
+always acceptable to @pkgname{}, @code{latin-unity-ucs-list},
+@code{latin-unity-preferred-coding-system-list}, and
+@code{latin-unity-preapproved-coding-system-list}.  The latter two default
 to @code{()}, and should probably be avoided because they short-circuit
 the sanity check.  If you find you need to use them, consider reporting
 it as a bug or request for enhancement.  Because they seem unsafe, the
@@ -268,6 +269,7 @@ recommended interface is likely to change.
 @end menu
 
 
+@c #### need to describe completion features?
 @node Basic Functionality, Interactive Usage, , Usage
 @section Basic Functionality
 
@@ -293,57 +295,88 @@ Clean up hooks and void variables used by latin-unity.
 @end defun
 
 
-@defopt latin-unity-approved-ucs-list
-
-The default value is @code{'(utf-8 iso-2022-7 ctext)}.
+@defopt latin-unity-ucs-list
+The default value is @code{'(utf-8 iso-2022-7 ctext escape-quoted)}.
 
 List of coding systems considered to be universal.
 
 Order matters; coding systems earlier in the list will be preferred when
 recommending a coding system.
+
+@samp{escape-quoted} is a special coding system used for autosaves and
+compiled Lisp in Mule.  You should not delete this, and it is rare that
+a user would want to use it directly.
 @end defopt
 
 
 Coding systems which are not Latin and not in
-@code{latin-unity-approved-ucs-list} are handled by short circuiting
-checks of coding system against the next two variables.  A preferable
-approach is to define an alist of coding systems to corresponding sets
-of ``safe'' character sets, then checking that @code{(charsets-in-region
-begin end)} is contained in the appropriate set.  If you want this
-@emph{now} do it yourself and send a patch to
-@email{stephen@@xemacs.org}.
+@code{latin-unity-ucs-list} are handled by short circuiting checks of
+coding system against the next two variables.
 
+@defopt latin-unity-preapproved-coding-system-list
+List of coding systems used without querying the user if feasible.
 
-@defopt latin-unity-ignored-coding-system-list
+The default value is @samp{(buffer-default preferred)}.
 
-The default value is nil.
+The feasible first coding system in this list is used.  The special values
+@samp{preferred} and @samp{buffer-default} may be present:
 
-List of coding systems such that the buffer is not checked for Latin unity.
+@table @code
+@item buffer-default
+Use the coding system used by @samp{write-region}, if feasible.
 
-Usually this means that the value of @code{buffer-file-coding-system} is
-a member of this list.
+@item preferred
+Use the coding system specified by @samp{prefer-coding-system} if feasible.
+@end table
 
-This API is likely to change.
+"Feasible" means that all characters in the buffer can be represented by
+the coding system.  Coding systems in @samp{latin-unity-ucs-list} are
+always considered feasible.  Other feasible coding systems are computed
+by @samp{latin-unity-representations-feasible-region}.
+
+Note that the first universal coding system in this list shadows all other
+coding systems.
 @end defopt
 
 
-@defopt latin-unity-approved-coding-system-list
+@defopt latin-unity-preferred-coding-system-list
+List of coding systems suggested the user if feasible.
 
-The default value is nil.
+The default value is @samp{(iso-8859-1 iso-8859-15 iso-8859-2 iso-8859-3
+iso-8859-4 iso-8859-9)}.
 
-List of coding systems forcing a save of the buffer even if Latin unity
-is not satisfied.
+If none of the coding systems in
+@samp{latin-unity-preferred-coding-system-list} are feasible, this list
+will be recommended to the user, followed by the
+@samp{latin-unity-ucs-list} (so those coding systems should not be in
+this list).  The first coding system in this list is default.  The
+special values @samp{preferred} and @samp{buffer-default} may be
+present:
 
-This API is likely to change.
+@table @code
+@item buffer-default
+Use the coding system used by @samp{write-region}, if feasible.
+
+@item preferred
+Use the coding system specified by @samp{prefer-coding-system} if feasible.
+@end table
+
+"Feasible" means that all characters in the buffer can be represented by
+the coding system.  Coding systems in @samp{latin-unity-ucs-list} are
+always considered feasible.  Other feasible coding systems are computed
+by @samp{latin-unity-representations-feasible-region}.
 @end defopt
 
 
-@defopt latin-unity-iso-8859-1-aliases
+@defvar latin-unity-iso-8859-1-aliases
+List of coding systems to be treated as aliases of ISO 8859/1.
 
 The default value is '(iso-8859-1).
 
-List of coding systems to be treated as aliases of ISO 8859/1.
-@end defopt
+This is not a user variable; to customize input of coding systems or
+charsets, @samp{latin-unity-coding-system-alias-alist} or
+@samp{latin-unity-charset-alias-alist}.
+@end defvar
 
 
 @node Interactive Usage, , Basic Functionality, Usage
@@ -507,6 +540,27 @@ of any characters, use @code{latin-unity-remap-region}.
 @end defun
 
 
+Helper functions for input of coding system and character set names.
+
+@defun latin-unity-guess-charset candidate
+Guess a charset based on the symbol @var{candidate}.
+
+@var{candidate} itself is not tried as the value.
+
+Uses the natural mapping in @samp{latin-unity-cset-codesys-alist}, and
+the values in @samp{latin-unity-charset-alias-alist}."
+@end defun
+
+@defun latin-unity-guess-coding-system candidate
+Guess a coding system based on the symbol @var{candidate}.
+
+@var{candidate} itself is not tried as the value.
+
+Uses the natural mapping in @samp{latin-unity-cset-codesys-alist}, and
+the values in @samp{latin-unity-coding-system-alias-alist}."
+@end defun
+
+
 @defun latin-unity-test
 
 Really cheesy tests for @pkgname{}.
@@ -541,6 +595,34 @@ If you want @pkgname{} to be automatically initialized, invoke
 @xref{Init File, , , xemacs}.  If you are using GNU Emacs or an XEmacs
 earlier than 21.1, you should also load @file{auto-autoloads} using the
 full path (@emph{never} @samp{require} @file{auto-autoloads} libraries).
+
+You may wish to define aliases for commonly used character sets and
+coding systems for convenience in input.
+
+@defopt latin-unity-charset-alias-alist
+Alist mapping aliases to Mule charset names (symbols)."
+
+The default value is
+@example
+   ((latin-1 . latin-iso8859-1)
+    (latin-2 . latin-iso8859-2)
+    (latin-3 . latin-iso8859-3)
+    (latin-4 . latin-iso8859-4)
+    (latin-5 . latin-iso8859-9)
+    (latin-9 . latin-iso8859-15)
+    (latin-10 . latin-iso8859-16))
+@end example
+
+If a charset does not exist on your system, it will not complete and you
+will not be able to enter it in response to prompts.  A real charset
+with the same name as an alias in this list will shadow the alias.
+@end defopt
+
+@defopt latin-unity-coding-system-alias-alist nil
+Alist mapping aliases to Mule coding system names (symbols).
+
+The default value is @samp{nil}.
+@end defopt
 
 
 @node Bug Reports, Theory of Operation, Configuration, Top
@@ -692,7 +774,7 @@ You}.  So these functions must be invoked by the user.  @xref{Interactive
 Usage}.
 
 
-@node What latin-unity Cannot Do for You, , Theory of Operation, Top
+@node What latin-unity Cannot Do for You, Charsets and Coding Systems, Theory of Operation, Top
 @chapter What latin-unity Cannot Do for You
 
 @pkgname{} @strong{cannot} save you if you insist on exporting data in
@@ -753,6 +835,197 @@ characters in ISO 8859/2, you now have a file that cannot be
 mechanically disentangled.  You need a human being who can recognize
 that @emph{this is German and Swedish} and stays in Latin-1, while
 @emph{that is Polish} and needs to be recoded to Latin-2.
+
+@node Charsets and Coding Systems, Internals, What latin-unity Cannot Do for You, Top
+@chapter Charsets and Coding Systems
+
+This section provides reference lists of Mule charsets and coding
+systems.  Mule charsets are typically named by character set and
+standard.
+
+@table @strong
+@item ASCII variants
+
+Identification of equivalent characters in these sets is not properly
+implemented.  @pkgname{} does not distinguish the two charsets.
+
+@samp{ascii} @samp{latin-jisx0201}
+
+@item Extended Latin
+
+Characters from the following ISO 2022 conformant charsets are
+identified with equivalents in other charsets in the group by
+@pkgname{}.
+
+@samp{latin-iso8859-1} @samp{latin-iso8859-15} @samp{latin-iso8859-2}
+@samp{latin-iso8859-3} @samp{latin-iso8859-4} @samp{latin-iso8859-9}
+
+The follow charsets are Latin variants which are not understood by
+@pkgname{}.  In addition, many of the Asian language standards provide
+ASCII, at least, and sometimes other Latin characters.  None of these
+are identified with their ISO 8859 equivalents.
+
+@samp{vietnamese-viscii-lower}
+@samp{vietnamese-viscii-upper}
+
+@item Other character sets
+
+@samp{arabic-1-column}
+@samp{arabic-2-column}
+@samp{arabic-digit}
+@samp{arabic-iso8859-6}
+@samp{chinese-big5-1}
+@samp{chinese-big5-2}
+@samp{chinese-cns11643-1}
+@samp{chinese-cns11643-2}
+@samp{chinese-cns11643-3}
+@samp{chinese-cns11643-4}
+@samp{chinese-cns11643-5}
+@samp{chinese-cns11643-6}
+@samp{chinese-cns11643-7}
+@samp{chinese-gb2312}
+@samp{chinese-isoir165}
+@samp{cyrillic-iso8859-5}
+@samp{ethiopic}
+@samp{greek-iso8859-7}
+@samp{hebrew-iso8859-8}
+@samp{ipa}
+@samp{japanese-jisx0208}
+@samp{japanese-jisx0208-1978}
+@samp{japanese-jisx0212}
+@samp{katakana-jisx0201}
+@samp{korean-ksc5601}
+@samp{sisheng}
+@samp{thai-tis620}
+@samp{thai-xtis}
+
+@item Non-graphic charsets
+
+@samp{control-1}
+@end table
+
+@table @strong
+@item No conversion
+
+Some of these coding systems may specify EOL conventions.  Note that
+@samp{iso-8859-1} is a no-conversion coding system, not an ISO 2022
+coding system.  Although @pkgname{} attempts to compensate for this, it
+is possible that the @samp{iso-8859-1} coding system will behave
+differently from other ISO 8859 coding systems.
+
+@samp{binary} @samp{no-conversion} @samp{raw-text} @samp{iso-8859-1}
+
+@item Latin coding systems
+
+These coding systems are all single-byte, 8-bit ISO 2022 coding systems,
+combining ASCII in the GL register (bytes with high-bit clear) and an
+extended Latin character set in the GR register (bytes with high-bit set).
+
+@samp{iso-8859-15} @samp{iso-8859-2} @samp{iso-8859-3} @samp{iso-8859-4}
+@samp{iso-8859-9}
+
+These coding systems are single-byte, 8-bit coding systems that do not
+conform to general standards.  They should be avoided in all potentially
+multilingual contexts, including any text distributed over the Internet
+and World Wide Web.
+
+@samp{windows-1251}
+
+@item Multilingual coding systems
+
+The following ISO-2022-based coding systems are useful for multilingual
+text.
+
+@samp{ctext} @samp{iso-2022-lock} @samp{iso-2022-7} @samp{iso-2022-7bit}
+@samp{iso-2022-7bit-ss2} @samp{iso-2022-8} @samp{iso-2022-8bit-ss2}
+
+XEmacs also supports Unicode with the Mule-UCS package.  These are the
+preferred coding systems for multilingual use.  (There is a possible
+exception for texts that mix several Asian ideographic character sets.)
+
+@samp{utf-16-be} @samp{utf-16-be-no-signature} @samp{utf-16-le}
+@samp{utf-16-le-no-signature} @samp{utf-7} @samp{utf-7-safe}
+@samp{utf-8} @samp{utf-8-ws}
+
+@item Asian ideographic languages
+
+The following coding systems are based on ISO 2022, and are more or less
+suitable for encoding multilingual texts.  They all can represent ASCII
+at least, and sometimes several other foreign character sets, without
+resort to arbitrary ISO 2022 designations.  However, these subsets are
+not identified with the corresponding national standards in XEmacs Mule.
+
+@samp{chinese-euc} @samp{cn-big5} @samp{cn-gb-2312} @samp{gb2312}
+@samp{hz} @samp{hz-gb-2312} @samp{old-jis} @samp{japanese-euc}
+@samp{junet} @samp{euc-japan} @samp{euc-jp} @samp{iso-2022-jp}
+@samp{iso-2022-jp-1978-irv} @samp{iso-2022-jp-2} @samp{euc-kr}
+@samp{korean-euc} @samp{iso-2022-kr} @samp{iso-2022-int-1}
+
+The following coding systems cannot be used for general multilingual
+text and do not cooperate well with other coding systems.
+
+@samp{big5} @samp{shift_jis}
+
+@item Other languages
+
+The following coding systems are based on ISO 2022.  Though none of them
+provides any Latin characters beyond ASCII, XEmacs Mule allows (and up
+to 21.4 defaults to) use of ISO 2022 control sequences to designate
+other character sets for inclusion the the text.
+
+@samp{iso-8859-5} @samp{iso-8859-7} @samp{iso-8859-8}
+@samp{ctext-hebrew}
+
+The following are character sets that do not conform to ISO 2022 and
+thus cannot be safely used in a multilingual context.
+
+@samp{alternativnyj} @samp{koi8-r} @samp{tis-620} @samp{viqr}
+@samp{viscii} @samp{vscii}
+
+@item Special coding systems
+
+Mule uses the following coding systems for special purposes.
+
+@samp{automatic-conversion} @samp{undecided} @samp{escape-quoted}
+
+The following coding systems are aliases for others, and are used for
+communication with the host operating system.
+
+@samp{file-name} @samp{keyboard} @samp{terminal}
+
+@end table
+
+Mule detection of coding systems is actually limited to detection of
+classes of coding systems called @dfn{coding categories}.  These coding
+categories are identified by the ISO 2022 control sequences they use, if
+any, by their conformance to ISO 2022 restrictions on code points that
+may be used, and by characteristic patterns of use of 8-bit code points.
+
+@samp{no-conversion}
+@samp{utf-8}
+@samp{ucs-4}
+@samp{iso-7}
+@samp{iso-lock-shift}
+@samp{iso-8-1}
+@samp{iso-8-2}
+@samp{iso-8-designate}
+@samp{shift-jis}
+@samp{big5}
+
+
+@node Internals, , Charsets and Coding Systems, Top
+@chapter Internals
+
+No internals documentation yet.
+
+@file{latin-unity-utils.el} provides one utility function.
+
+@defun latin-unity-dump-tables
+
+Dump the temporary table created by loading @file{latin-unity-utils.el}
+to @file{latin-unity-tables.el}.  Loading the latter file initializes
+@samp{latin-unity-equivalences}.
+@end defun
 
 @c end of latin-unity.texi
 

@@ -21,15 +21,15 @@
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 0.99
-AUTHOR_VERSION = 0.99
+AUTHOR_VERSION = 1.00
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
 PKG_TYPE = regular
-# The Mule-UCS require will go away at some point
-REQUIRES = mule-base mule-ucs
+# The Mule-UCS, leim, and fsf-compat requires will go away at some point
+REQUIRES = mule-base mule-ucs leim fsf-compat
 CATEGORY = mule
 
-ELCS = latin-unity.elc latin-unity-vars.elc \
+ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-tables.elc latin-unity-utils.elc
 
 # for defvars and creation of ISO 8859/15 charset and coding system

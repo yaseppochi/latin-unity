@@ -1,45 +1,63 @@
 ***** latin-unity
 
-This is the beta test version of the latin-unity package for Mule
-XEmacs.
-
-This file has not been updated; the new Texinfo manual is more reliable.
-
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
 a larger character set.  For example, all of the Latin character sets
 include NO-BREAK SPACE at code point 32 (ie, 0xA0 in an 8-bit code),
 but the Latin-1 and Latin-2 NO-BREAK SPACE characters are considered
-to be different by Mule, an obvious absurdity.  This package provides
-functions which determine the list of coding systems which can encode
-all of the characters in the buffer, and translate to a common coding
-system if possible.
+to be different by Mule, an obvious absurdity.
+
+This package provides functions which determine the list of coding
+systems which can encode all of the characters in the buffer, and
+translate to a common coding system if possible.
+
+
+***** Basic usage:
+
+To set up the package, simply put
+
+(latin-unity-install)
+
+in your init file.
+
+
+***** Availability:
+
+anonymous CVS:
+Get the latin-unity module and build as usual.
+
+WWW:
+ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
+
 
 ***** Features:
-
-  o ISO 8859/15 for XEmacs 21.4 (lightly tested) and 21.1 (untested).
-    To get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
-    (set-coding-category-system 'iso-8-1 'iso-8859-15).  (untested)
-
-    If all you want is ISO 8859/15 support, you can either copy the
-    ISO 8859/15 setup to another file, or `(require 'latin-unity-vars).
 
   o If a buffer contains only ASCII and ISO-8859 Latin characters, the
     buffer can be "unified", that is treated so that all characters are
     translated to one charset that includes them all.  If the current
     buffer coding system is not sufficient, the package will suggest
     alternatives.  It prefers ISO-8859 encodings, but also suggests
-    UTF-8 (if available; 21.4+ feature), ISO 2022 7-bit, or X Compound
-    Text if no ISO 8859 coding system is comprehensive enough.
+    UTF-8 (if available; 21.4+ feature, currently requires Mule-UCS),
+    ISO 2022 7-bit, or X Compound Text if no ISO 8859 coding system is
+    comprehensive enough.
 
     It allows the user to use other coding systems, and the list of
     suggested coding systems is Customizable.
 
     This probably also is useful out of the box if the buffer contains
-    non-Latin characters in addition to a mixture of Latin
-    characters.  For example, I believe it would reduce a buffer
-    originally ISO-2022-JP (including Latin-1 characters) to ISO
-    8859/1 if all the Japanese were deleted.  (untested)
+    non-Latin characters in addition to a mixture of Latin characters.
+    For example, it would reduce a buffer originally encoded in
+    ISO-2022-JP (including Latin-1 characters) to ISO 8859/1 if all
+    the Japanese were deleted.  (untested)
+
+  o ISO 8859/15 for XEmacs 21.4 (lightly tested) and 21.1 (untested).
+    To get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
+    (set-coding-category-system 'iso-8-1 'iso-8859-15).  (untested)
+    Alternatively set language environment to Latin-9.
+
+    If all you want is ISO 8859/15 support, you can either copy the
+    ISO 8859/15 setup to another file, or `(require 'latin-unity-vars)'
+    and `(require 'latin-euro-input)'.
 
   o Hooks into `write-region' to prevent (or at least drastically
     reduce the probability of) introduction of ISO 2022 escape
@@ -50,11 +68,28 @@ system if possible.
     This may permit us to turn off support for those sequences
     entirely in our ISO 8859 coding-systems.
 
-  o Depends only on mule-base in operation.  Table generation depends
-    on Unicode support such as Mule-UCS or Ben's ben-mule-21-5
-    workspace, and the package build currently requires Mule-UCS.
+  o Interactive functions to _remap_ a region between character sets
+    (preserving character identity) and _recode_ a region (preserving
+    the code point).  The former is probably not useful if the
+    automatic function is working at all, but provided for
+    completeness.  The latter is useful if Mule mistakenly reads an
+    ISO 8859/2 file as ISO 8859/1; you can change it without rereading
+    the file.  Since it's region-oriented, you can also deal with cut
+    and paste from dumb applications that export everything as ISO 8859/1.
+
+  o A nearly comprehensive Texinfo manual contains a discussion of
+    why these things happen, why they can't be 100% avoided in an 8-bit
+    world, and some defensive measures users can take, as well as the
+    usual install, configure, and operating instructions.
+
+  o latin-unity itself depends only on mule-base in operation.  Table
+    generation depends on Unicode support such as Mule-UCS or Ben's
+    ben-mule-21-5 workspace, and the package build currently requires
+    Mule-UCS.  The input method depends on LEIM and fsf-compat.
 
 Current misfeatures:
+
+  o Need `(require 'latin-euro-input)' to get Quail support.
 
   o If the buffer is changed by the hook, apparently write-region
     starts over again from the top.  The buffer is checked again, and
@@ -66,56 +101,40 @@ Current misfeatures:
     time.  You'll get the same default as the first time.
 
   o Probable performance hit on large (> 20kB) buffers with many
-    (>20%) non-ASCII characters.  Possible otimizations are given near
+    (>20%) non-ASCII characters.  Possible optimizations are given near
     `latin-unity-region-feasible-representations' in latin-unity.el.
 
-  o Custom-loads aren't built for the package.  You'll need to `(require
-    'latin-unity)' to get Customize's information loaded.
+  o Package depends on Mule-UCS, LEIM (Quail), and fsf-compat.
 
-  o Package depends on Mule-UCS.
+  o This README is too long.
 
-Planned:
+Planned, mostly near future:
 
   o Fix the misfeatures.
 
-  o GNU Emacs support.
+  o Check -*- coding: codesys -*- cookies for consistency.
 
   o Fix JIS Roman (as an alternative to ASCII) support.
 
-  o More UI features (like list of unrepresentable charsets, and
-    perhaps highlighting them in buffer)
+  o Support Latin-10 (ISO 8859/16) aka Latin-2 + EURO SIGN.
+
+  o More UI features (like highlighting unrepresentable chars in buffer).
 
   o Integration to development tree (but probably not 21.4, this
     package should be good enough).
 
-  o Eliminate all need for Mule-UCS.
+  o Charset completion for the interactive recoding/remapping functions.
 
-Not planned:
+  o Hook into MUAs.
 
-  o Extension to Han-unity.  This needs to be treated more carefully.
+  o GNU Emacs support.
 
-***** Availability:
+Not planned any time soon:
 
-These URLs will change upon public release.
+  o Extend to process buffers in some way, which looks very hard.
 
-    anonymous CVS:
-    Get the XEmacs/packages/mule-packages/latin-unity module.  You'll
-    need to fix up the lists of packages in the package-compile.el
-    utility (and possible in mule-package/Makefile) to build a
-    package, but for general use, just byte-compiling latin-unity and
-    latin-unity-tables, and putting them on your path, should be fine.
-
-    WWW:
-    http://turnbull.sk.tsukuba.ac.jp/Tools/XEmacs/latin-unity-0.90-pkg.tar.gz
-
-
-***** Basic usage:
-
-To set up the package, simply put
-
-(add-hook 'write-region-pre-hook #'latin-unity-sanity-check)
-
-in your init file.
+  o Han-unity.  This is not entirely analogous to Latin unity, and
+    needs to be treated very carefully.
 
 
 ***** Implementation:
@@ -125,6 +144,8 @@ functionality, including a hook function to hang on `write-region-pre-hook'.
 
 latin-unity-vars.el contains the definition of ISO 8859/15 and variables
 common to several modules.
+
+latin-euro-input.el contains Dave Love's Quail input method for Latin 9.
 
 latin-unity-tables.el contains the table of feasible character sets and
 equivalent Mule characters from other character sets for the various Mule

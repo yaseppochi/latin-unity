@@ -1,3 +1,82 @@
+2002-03-05  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-guess-coding-system):
+	(latin-unity-guess-charset):
+	(latin-unity-coding-system-alias-alist): 
+	(latin-unity-charset-alias-alist): 
+	New functions and variables.
+	(latin-unity-remap-region): 
+	(latin-unity-recode-coding-region): 
+	(latin-unity-recode-region):
+	Implement completion and error recovery using them.
+
+	* (latin-unity-sanity-check):
+	(latin-unity-remap-region):
+	Simplify sanity-check, including moving error handling for remap
+	failure to remap-region.
+
+	* latin-unity.texi (Interactive Usage: latin-unity-guess-charset,
+	latin-unity-guess-coding-system,
+	latin-unity-preferred-coding-system-list,
+	latin-unity-preapproved-coding-system-list):
+	Document new functions and variables.
+	(Basic Functionality: latin-unity-ucs-list): New name.
+
+	* latin-unity.el (latin-unity-representations-feasible-region):
+	(latin-unity-representations-present-region):
+	(latin-unity-recommend-representation):
+	(latin-unity-remap-region):
+	Handle start == nil case for autosaves.
+
+	(latin-unity-sanity-check):
+	(latin-unity-recommend-representation):
+	Handle null buffer-default or preferred properly.
+
+2002-03-04  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-preapproved-coding-system-list):
+	(latin-unity-preferred-coding-system-list):
+	(latin-unity-ucs-list):
+	(latin-unity-iso-8859-1-aliases):
+	Extensible lists are Customize type 'repeat.
+	(latin-unity-recommend-representation): Report the buffer to save.
+
+2002-03-03  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.texi (Charsets and Coding Systems, Internals): New nodes.
+
+	* BLURB: Advertise provision of charset, coding system, IM.
+
+	* latin-unity.el (latin-unity-maybe-remap):
+	(latin-unity-recommend-representation):
+	New functions broken out of `latin-unity-sanity-check'.
+	(latin-unity-sanity-check): Reorganize using new functions.
+
+2002-03-02  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-coding-system-priority-list):
+	(latin-unity-coding-system-priority-list-buffer):
+	New variables.
+	(latin-unity-coding-system-priority-list): Help function.
+
+	* README: Document Latin 9 input.
+
+	* latin-unity.el (latin-unity-sanity-check): Handle case where
+	region can be represented with remapping as documented.  Special-
+	case 'iso-8859-1, Mule doesn't consider it type 'iso2022.
+
+	* latin-euro-input.el: New file.
+
+	* latin-unity-vars.el: Add coding cookie.
+
+2002-03-01  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* README: Update to current reality.  Add to-do stuff from Erwan
+	David and Barry Warsaw.
+
+	* latin-unity-vars.el: Add Latin-9 environment.  Convert characters
+	in comment from Latin-1 to Latin-9.
+
 2002-02-25  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* README: Note out of date status.

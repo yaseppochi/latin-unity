@@ -1,4 +1,4 @@
-;;; latin-unity-vars.el --- Common variables and objects of latin-unity
+;;; latin-unity-vars.el --- Common variables and objects of latin-unity -*- coding: iso-2022-7 -*-
 
 ;; Copyright (C) 2002 Free Software Foundation, Inc
 
@@ -43,39 +43,65 @@
 
 ;; define ISO-8859-15 for XEmacs 21.4 and earlier
 ;(eval-when (compile load eval)
-  (unless (find-coding-system 'iso-8859-15)
-    ;; Create character set
-    (make-charset
-     'latin-iso8859-15 "ISO8859-15 (Latin 9)"
-     '(short-name "Latin-9"
-       long-name "ISO8859-15 (Latin 9)"
-       registry "iso8859-15"
-       dimension 1
-       columns 1
-       chars 96
-       final ?b
-       graphic 1
-       direction l2r))
-    ;; For syntax of Latin-9 characters.
-    (require 'cl)
-    (load-library "cl-macs")		; howcum no #'provide?
-    (loop for c from 64 to 127		; from 'À' to 'ÿ'
-      do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
-    (mapc (lambda (c)
-	    (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
-	  '(#xA6 #xA8 #xB4 #xB8 #xBC #xBD #xBE))
+;;;###autoload
+(unless (find-charset 'latin-iso8859-15)
+  ;; Create character set
+  (make-charset
+   'latin-iso8859-15 "ISO8859-15 (Latin 9)"
+   '(short-name "Latin-9"
+     long-name "ISO8859-15 (Latin 9)"
+     registry "iso8859-15"
+     dimension 1
+     columns 1
+     chars 96
+     final ?b
+     graphic 1
+     direction l2r))
+  ;; For syntax of Latin-9 characters.
+  (require 'cl)
+  (load-library "cl-macs")		; howcum no #'provide?
+  (loop for c from 64 to 127		; from ',b@(B' to ',b(B'
+    do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
+  (mapc (lambda (c)
+	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
+	'(#xA6 #xA8 #xB4 #xB8 #xBC #xBD #xBE))
+  
+  (modify-syntax-entry (make-char 'latin-iso8859-15 32) "w") ; no-break space
+  (modify-syntax-entry (make-char 'latin-iso8859-15 87) "_") ; multiply
+  (modify-syntax-entry (make-char 'latin-iso8859-15 119) "_") ; divide
+  )
 
-    (modify-syntax-entry (make-char 'latin-iso8859-15 32) "w") ; no-break space
-    (modify-syntax-entry (make-char 'latin-iso8859-15 87) "_") ; multiply
-    (modify-syntax-entry (make-char 'latin-iso8859-15 119) "_") ; divide
-    ;; Create coding system
-    (make-coding-system
-     'iso-8859-15 'iso2022 "MIME ISO-8859-15"
-     '(charset-g0 ascii
-       charset-g1 latin-iso8859-15
-       charset-g2 t			; grrr
-       charset-g3 t			; grrr
-       mnemonic "MIME/Ltn-9")))
+(unless (find-coding-system 'iso-8859-15)
+  ;; Create coding system
+  (make-coding-system
+   'iso-8859-15 'iso2022 "MIME ISO-8859-15"
+   '(charset-g0 ascii
+     charset-g1 latin-iso8859-15
+     charset-g2 t			; grrr
+     charset-g3 t			; grrr
+     mnemonic "MIME/Ltn-9")))
+(defun setup-latin9-environment ()
+  "Set up multilingual environment (MULE) for European Latin-9 users."
+  (interactive)
+  (set-language-environment "Latin-9"))
+
+(set-language-info-alist
+ "Latin-9" '((charset ascii latin-iso8859-15)
+	     (coding-system iso-8859-15)
+	     (coding-priority iso-8859-15)
+	     (input-method . "latin-9-prefix")
+	     (sample-text
+	      ;; I'd like to append ", my ,b$(B0.02" to the following string,
+	      ;; but can't due to a bug in escape-quoted support
+	      ;; NB: convert the Latin-1 to Latin-9 when possible
+	      . "Hello, Hej, Tere, Hei, Bonjour, Gr,b|_(B Gott, Ciao, ,b!(BHola!, my ,b$(B0.02")
+	     (documentation . "\
+This language environment is a generic one for Latin-9 (ISO-8859-15)
+character set which supports the Euro and the following languages:
+ Danish, Dutch, English, Faeroese, Finnish, French, German, Icelandic,
+ Irish, Italian, Norwegian, Portuguese, Spanish, and Swedish.
+We also have a German specific language environment \"German\"."))
+ '("European"))
 ;)
 
 ;; latin-unity-equivalence-table

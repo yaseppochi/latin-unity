@@ -2,6 +2,7 @@ latin-unity
 
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
-a larger character set.  This package provides functions which
-determine the list of coding systems which can encode all of the
-characters in the buffer, and translate to a common coding system.
+a larger character set.  This package provides functions to determine
+the list of coding systems which can encode all of the characters in
+the buffer, and translate to a common coding system.  It also provides
+Latin-9 charset, coding system, and input method.
