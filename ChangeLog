@@ -1,3 +1,13 @@
+2002-01-26  Steve Youngs  <youngs@xemacs.org>
+
+	* Makefile (GENERATED): Put it after 'include ../../XEmacs.rules'
+	so custom-load.elc will be built.
+
+2002-01-25  Steve Youngs  <youngs@xemacs.org>
+
+	* Makefile (all): Build auto-autoloads.elc and custom-loads.elc
+	(all): change error if trying to build without Mule.
+
 2002-01-25  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity: New package.

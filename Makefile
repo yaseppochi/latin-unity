@@ -28,16 +28,18 @@ CATEGORY = mule
 
 ELCS = latin-unity.elc latin-unity-vars.elc \
        latin-unity-tables.elc latin-unity-utils.elc
-GENERATED += custom-load.elc
+
 
 # for defvars and creation of ISO 8859/15 charset and coding system
 PRELOADS=-l cl-macs -l latin-unity-vars.el
 
 include ../../XEmacs.rules
 
+GENERATED += custom-load.elc
+
 ifeq ($(BUILD_WITHOUT_MULE),)
 
-all:: $(ELCS) $(GENERATED)
+all:: auto-autoloads.elc $(ELCS) custom-load.elc
 
 # There should be a rule here to build latin-unity-tables.el.
 
@@ -47,7 +49,7 @@ binkit: binkit-common
 
 else
 all::
-	@echo Edict requires XEmacs/Mule to build
+	@echo Latin-Unity requires XEmacs/Mule to build
 
 # Two noops
 srckit:
