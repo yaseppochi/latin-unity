@@ -1,3 +1,7 @@
+2003-10-31  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.08 released.
+
 2003-04-16  Steve Youngs  <youngs@xemacs.org>
 
 	* Makefile (REQ_MIN_VERSION): Removed, version 3.79 of GNU/make
