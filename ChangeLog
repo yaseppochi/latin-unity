@@ -4,6 +4,26 @@
 
 	* Makefile (VERSION): XEmacs package 1.12 released.
 
+2005-02-08  Aidan Kehoe  <kehoea@parhasard.net> 
+ 
+	* Makefile: Update version, requires, preloads. 
+
+	* latin-unity-latin7.el (iso8859/13-case-table): Removed. 
+ 
+	* latin-unity-latin10.el: 
+	* latin-unity-latin7.el: 
+	* latin-unity-latin8.el: 
+	* latin-unity-latin9.el: 
+	Refactor out functionality, add asserts to make sure the old 
+	functionality is provided by latin-euro-standards.  
+ 
+	* latin-unity-vars.el:  
+	Depend on latin-euro-standards instead of latin-unity-latin*. 
+	* latin-unity.el:  
+	Depend on latin-unity-vars to load latin{7,8,9,10} language 
+	environment.  
+	* latin-unity.texi (Interfaces): Update doc to reflect refactoring. 
+  
 2004-05-14  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.10 released.
