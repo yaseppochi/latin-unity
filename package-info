@@ -1,0 +1,19 @@
+(latin-unity
+  (standards-version 1.1
+   version "0.90"
+   author-version "0.90"
+   date "2002-01-25"
+   build-date "2002-01-25"
+   maintainer "Stephen J. Turnbull <stephen@xemacs.org"
+   distribution mule
+   priority high
+   category "mule"
+   dump nil
+   description "MULE: find single ISO 8859 character set to encode a buffer."
+   filename "latin-unity-0.90-pkg.tar.gz"
+   md5sum "d95d9fe27bc92cb47de26638bdd9d5ed"
+   size 36976
+   provides (latin-unity latin-unity-tables latin-unity-utils)
+   requires (mule-base mule-ucs)
+   type regular
+))

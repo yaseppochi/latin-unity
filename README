@@ -1,0 +1,28 @@
+latin-unity
+
+Mule bogusly considers the various ISO-8859 extended character sets as
+disjoint, when ISO 8859 itself clearly considers them to be subsets of
+a larger character set.  For example, all of the Latin character sets
+include NO-BREAK SPACE at code point 32 (ie, 0xA0 in an 8-bit code),
+but the Latin-1 and Latin-2 NO-BREAK SPACE characters are considered
+to be different by Mule, an obvious absurdity.  This package provides
+functions which determine the list of coding systems which can encode
+all of the characters in the buffer, and translate to a common coding
+system if possible.
+
+latin-unity.el is the main library, providing the detection and translation
+functionality, including a hook function to hang on `write-region-pre-hook'.
+
+latin-unity-tables.el contains the table of feasible character sets and
+equivalent Mule characters from other character sets for the various Mule
+representations of each character.
+
+latin-unity-utils.el contains utilities for creating the equivalence table.
+
+To set up the package, simply put
+
+(add-hook 'write-region-pre-hook #'latin-unity-sanity-check)
+
+in your init file.
+
+Note: this package is planned for addition to the mainline in some form.

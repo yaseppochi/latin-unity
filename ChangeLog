@@ -1,0 +1,14 @@
+2002-01-25  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity: New package.
+
+	* latin-unity.el:
+	* latin-unity-vars.el:
+	* latin-unity-utils.el:
+	* Makefile:
+	* README:
+	* BLURB:
+	* package-info.in:
+	Created.
+	* latin-unity-tables.el: Hand-generated.
+

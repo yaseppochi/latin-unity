@@ -1,0 +1,19 @@
+(latin-unity
+  (standards-version 1.1
+   version VERSION
+   author-version AUTHOR_VERSION
+   date DATE
+   build-date BUILD_DATE
+   maintainer MAINTAINER
+   distribution mule
+   priority high
+   category CATEGORY
+   dump nil
+   description "MULE: find single ISO 8859 character set to encode a buffer."
+   filename FILENAME
+   md5sum MD5SUM
+   size SIZE
+   provides (latin-unity latin-unity-tables latin-unity-utils)
+   requires (REQUIRES)
+   type regular
+))
