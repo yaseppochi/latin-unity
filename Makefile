@@ -20,7 +20,7 @@
 # Boston, MA 02111-1307, USA.
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
-VERSION = 0.91
+VERSION = 0.99
 AUTHOR_VERSION = 0.99
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
