@@ -730,7 +730,7 @@ problems as a bug (@pxref{Bug Reports}).
 @end enumerate
 
 
-@node Theory of Operation, What latin-unity Cannot Do for You, Bug Reports, Top
+@node Theory of Operation, What latin-unity Cannot Do for You, Frequently Asked Questions, Top
 @chapter Theory of Operation
 
 Standard encodings suffer from the design defect that they do not

@@ -1,3 +1,7 @@
+2002-10-28  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+
+	* latin-unity.texi (Theory of Operation): Fix bad Previous link.
+
 2002-10-25  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
 
 	* (latin-unity-tables.el): Regenerate with Latin-7,8,10.
@@ -140,7 +144,7 @@
 	(latin-unity-maybe-set-coding-system): New function using it.
 	(latin-unity-sanity-check): Use it.
 
-2002-10-15  Ville Skyttä  <scop@xemacs.org>
+2002-10-15  Ville Skytt,Ad(B  <scop@xemacs.org>
 
 	* Makefile (srckit): Remove.
 
