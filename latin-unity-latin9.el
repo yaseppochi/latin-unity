@@ -43,15 +43,20 @@
   ;; Create character set
   (make-charset
    'latin-iso8859-15 "ISO8859-15 (Latin 9)"
-   '(short-name "Latin-9"
-     long-name "ISO8859-15 (Latin 9)"
-     registry "iso8859-15"
-     dimension 1
-     columns 1
-     chars 96
-     final ?b
-     graphic 1
-     direction l2r))
+   ;; sheesh, what we do for backward-bug-compatibility
+   ;; #### this test and the similar one below probably should be
+   ;; reformulated to use condition-case
+   (append (if (emacs-version>= 21 4)
+	       '(short-name "Latin-9"
+		 long-name "ISO8859-15 (Latin 9)")
+	     nil)
+	   '(registry "iso8859-15"
+	     dimension 1
+	     columns 1
+	     chars 96
+	     final ?b
+	     graphic 1
+	     direction l2r)))
   ;; For syntax of Latin-9 characters.
   (require 'cl)
   (load "cl-macs" nil t)		; howcum no #'provide?
@@ -84,28 +89,34 @@
     (interactive)
     (set-language-environment "Latin-9"))
 
-  (set-language-info-alist
-   "Latin-9"
-   `((charset ascii latin-iso8859-15)
-     (coding-system iso-8859-15)
-     (coding-priority iso-8859-15)
-     (input-method . "latin-9-prefix")
-     (sample-text
-      .
-      ,(format
-	"Hello, Hej, Tere, Hei, Bonjour, Gr%c%c Gott, Ciao, %cHola!, my %c0.02"
-	(make-char 'latin-iso8859-15 #x7C)	; SMALL U WITH UMLAUT
-	(make-char 'latin-iso8859-15 #x5F)	; GERMAN SHARP S
-	(make-char 'latin-iso8859-15 #x21)	; INVERTED EXCLAMATION MARK
-	(make-char 'latin-iso8859-15 #x24)	; EURO SIGN
-	))
-     (documentation . "\
+  ;; sheesh, what we do for backward-bug-compatibility
+  (apply #'set-language-info-alist
+	 (append `("Latin-9"
+		   ((charset ascii latin-iso8859-15)
+		    (coding-system iso-8859-15)
+		    (coding-priority iso-8859-15)
+		    (input-method . "latin-9-prefix")
+		    (sample-text
+		     .
+		     ,(format "\
+Hello, Hej, Tere, Hei, Bonjour, Gr%c%c Gott, Ciao, %cHola!, my %c0.02"
+			      ;; SMALL U WITH UMLAUT
+			      (make-char 'latin-iso8859-15 #x7C)
+			      ;; GERMAN SHARP S
+			      (make-char 'latin-iso8859-15 #x5F)
+			      ;; INVERTED EXCLAMATION MARK
+			      (make-char 'latin-iso8859-15 #x21)
+			      ;; EURO SIGN
+			      (make-char 'latin-iso8859-15 #x24)))
+		    (documentation . "\
 This is a generic language environment for Latin-9 (ISO-8859-15).  It
 supports the Euro and the following languages:
  Danish, Dutch, English, Faeroese, Finnish, French, German, Icelandic,
  Irish, Italian, Norwegian, Portuguese, Spanish, and Swedish.
-We also have a German specific language environment \"German\"."))
-   '("European")))
+We also have a German specific language environment \"German\".")))
+		 (if (emacs-version>= 21 1 15)
+		     '(("European"))
+		   nil))))
 
 ;; #### move these to a separate file for keysyms.
 
