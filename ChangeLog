@@ -1,3 +1,45 @@
+2002-03-23  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* .cvsignore: Add Info files.
+
+	* Makefile (PRELOADS): Add latin-unity-latin9.
+
+	* latin-unity.texi (Interactive Usage): Fix a typo.  Describe
+	completion and "guessing" for remap/recoding functions.  Update
+	version, this is pretty good.
+
+	* README: Update for revised implementation.
+
+	* latin-unity.el: Require latin-unity-utils instead of precomputed
+	latin-unity-tables when character-to-unicode is built-in.
+
+	* latin-unity-utils.el: Remove Mule-UCS dependency for >= 21.5.5.
+	Require latin-unity-latin9 and latin-unity-vars, not latin-unity.
+	(latin-unity-dump-tables): Make non-Latin charsets implicit.
+	Insert creation date.  Fiddle with header and trailer inserted.
+	* latin-unity-tables.el: Regenerated.
+
+	* latin-unity-latin10.el: New file, not in CVS.  Ask author.
+
+	* latin-unity-latin9.el: Condition EuroSign keysym defs properly.
+
+	* latin-unity-vars.el: Improve Commentary.
+	(latin-unity-debug): Customize.
+	(latin-unity-coding-systems): Check if codesys defined at runtime.
+	(latin-unity-character-sets): Check if charset defined at runtime.
+	(latin-unity-cset-codesys-alist): Check if codesys defined at runtime.
+
+2002-03-19  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-vars.el, latin-unity-latin9.el: Fix Latin-9
+	docstring to not need Latin-9 charset predefined, move charset and
+	coding system definitions from former to latter.
+
+2002-03-16  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-latin9.el (latin-9): Improve documentation for
+	environment.
+
 2002-03-12  Adrian Aichner  <adrian@xemacs.org>
 
 	* latin-unity.texi: Fix typos found by my own

@@ -5,7 +5,7 @@
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
 ;; Created: 2002 March 7
-;; Last-modified: 2002 March 7
+;; Last-modified: 2002 March 23
 
 ;; This file is part of XEmacs.
 
@@ -35,12 +35,49 @@
 
 ;; Provides the latin-9 language environment.
 
-;; The 'iso-8859-15 coding system must be defined before this file is loaded
-;; in XEmacsen before 21.4.7 and 21.5.6.  No, it can't be required here, it's
-;; already too late.
-
 ;;; Code:
 
+;; define ISO-8859-15 for XEmacs 21.4 and earlier
+;;;###autoload
+(unless (find-charset 'latin-iso8859-15)
+  ;; Create character set
+  (make-charset
+   'latin-iso8859-15 "ISO8859-15 (Latin 9)"
+   '(short-name "Latin-9"
+     long-name "ISO8859-15 (Latin 9)"
+     registry "iso8859-15"
+     dimension 1
+     columns 1
+     chars 96
+     final ?b
+     graphic 1
+     direction l2r))
+  ;; For syntax of Latin-9 characters.
+  (require 'cl)
+  (load-library "cl-macs")		; howcum no #'provide?
+  (loop for c from 64 to 127		; from ',b@(B' to ',b(B'
+    do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
+  (mapc (lambda (c)
+	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
+	'(#xA6 #xA8 #xB4 #xB8 #xBC #xBD #xBE))
+  
+  (modify-syntax-entry (make-char 'latin-iso8859-15 32) "w") ; no-break space
+  (modify-syntax-entry (make-char 'latin-iso8859-15 87) "_") ; multiply
+  (modify-syntax-entry (make-char 'latin-iso8859-15 119) "_") ; divide
+  )
+
+;;;###autoload
+(unless (find-coding-system 'iso-8859-15)
+  ;; Create coding system
+  (make-coding-system
+   'iso-8859-15 'iso2022 "MIME ISO-8859-15"
+   '(charset-g0 ascii
+     charset-g1 latin-iso8859-15
+     charset-g2 t			; grrr
+     charset-g3 t			; grrr
+     mnemonic "MIME/Ltn-9")))
+
+;;;###autoload
 (unless (assoc "Latin-9" language-info-alist)
   (defun setup-latin9-environment ()
     "Set up multilingual environment (MULE) for European Latin-9 users."
@@ -48,23 +85,37 @@
     (set-language-environment "Latin-9"))
 
   (set-language-info-alist
-   "Latin-9" '((charset ascii latin-iso8859-15)
-	       (coding-system iso-8859-15)
-	       (coding-priority iso-8859-15)
-	       (input-method . "latin-9-prefix")
-	       (sample-text
-		. "Hello, Hej, Tere, Hei, Bonjour, Grüß Gott, Ciao, ¡Hola!, my ¤0.02")
-	       (documentation . "\
-This language environment is a generic one for Latin-9 (ISO-8859-15)
-character set which supports the Euro and the following languages:
+   "Latin-9"
+   `((charset ascii latin-iso8859-15)
+     (coding-system iso-8859-15)
+     (coding-priority iso-8859-15)
+     (input-method . "latin-9-prefix")
+     (sample-text
+      .
+      ,(format
+	"Hello, Hej, Tere, Hei, Bonjour, Gr%c%c Gott, Ciao, %cHola!, my %c0.02"
+	(make-char 'latin-iso8859-15 #x7C)	; SMALL U WITH UMLAUT
+	(make-char 'latin-iso8859-15 #x5F)	; GERMAN SHARP S
+	(make-char 'latin-iso8859-15 #x21)	; INVERTED EXCLAMATION MARK
+	(make-char 'latin-iso8859-15 #x24)	; EURO SIGN
+	))
+     (documentation . "\
+This is a generic language environment for Latin-9 (ISO-8859-15).  It
+supports the Euro and the following languages:
  Danish, Dutch, English, Faeroese, Finnish, French, German, Icelandic,
  Irish, Italian, Norwegian, Portuguese, Spanish, and Swedish.
 We also have a German specific language environment \"German\"."))
    '("European")))
 
-;; bind the EuroSign keysym
-(define-key global-map [EuroSign] #'self-insert-command)
-(put 'EuroSign 'ascii-character (make-char 'latin-iso8859-15 #x24))
+;; #### move these to a separate file for keysyms.
+
+;;;###autoload
+(unless (lookup-key global-map [EuroSign])
+  (define-key global-map [EuroSign] #'self-insert-command))
+
+;;;###autoload
+(unless (get 'EuroSign 'ascii-character)
+  (put 'EuroSign 'ascii-character (make-char 'latin-iso8859-15 #x24)))
 
 (provide 'latin-unity-latin9)
 

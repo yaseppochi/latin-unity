@@ -10,8 +10,8 @@
 @c %**end of header
 
 @c Version values, for easy modification
-@set VERSION 0.9
-@set UPDATED Thursday 2002 March 7
+@set VERSION 1.0
+@set UPDATED Thursday 2002 March 23
 
 @c ** Many people seem to prefer this footenote style
 @footnotestyle end
@@ -254,7 +254,7 @@ the code point of the character, but may change the identity of the
 character.  @xref{Theory of Operation}.
 
 There are a few variables which determine which coding systems are
-always acceptable to @pkgname{}, @code{latin-unity-ucs-list},
+always acceptable to @pkgname{}:  @code{latin-unity-ucs-list},
 @code{latin-unity-preferred-coding-system-list}, and
 @code{latin-unity-preapproved-coding-system-list}.  The latter two default
 to @code{()}, and should probably be avoided because they short-circuit
@@ -269,7 +269,6 @@ recommended interface is likely to change.
 @end menu
 
 
-@c #### need to describe completion features?
 @node Basic Functionality, Interactive Usage, , Usage
 @section Basic Functionality
 
@@ -402,11 +401,13 @@ and the test function).
 
 @defun latin-unity-sanity-check begin end filename append visit lockname &optional coding-system
 
-Check if @var{coding-system} can represent all characters between @var{begin} and @var{end}.
+Check if @var{coding-system} can represent all characters between
+@var{begin} and @var{end}.
 
 For compatibility with old broken versions of @code{write-region},
-@var{coding-system} defaults to @code{buffer-file-coding-system}.  @var{filename},
-@var{append}, @var{visit}, and @var{lockname} are ignored.
+@var{coding-system} defaults to @code{buffer-file-coding-system}.
+@var{filename}, @var{append}, @var{visit}, and @var{lockname} are
+ignored.
 
 Return nil if buffer-file-coding-system is not (ISO-2022-compatible)
 Latin.  If @code{buffer-file-coding-system} is safe for the charsets
@@ -419,8 +420,8 @@ considers that ``non-Latin,'' and passes it on to the Mule detection
 mechanism.
 
 This function is intended for use as a @code{write-region-pre-hook}.  It
-does nothing except return @var{coding-system} if @code{write-region} handlers
-are inhibited.
+does nothing except return @var{coding-system} if @code{write-region}
+handlers are inhibited.
 @end defun
 
 
@@ -469,24 +470,25 @@ for Latin character sets there are only 29 classes.
 
 @defun latin-unity-remap-region begin end character-set &optional coding-system
 
-Remap characters between @var{begin} and @var{end} to equivalents in @var{character-set}.
-Optional argument @var{coding-system} may be a coding system name (a symbol) or
-nil.  Characters with no equivalent are left as-is.
+Remap characters between @var{begin} and @var{end} to equivalents in
+@var{character-set}.  Optional argument @var{coding-system} may be a
+coding system name (a symbol) or nil.  Characters with no equivalent are
+left as-is.
 
-When called interactively, @var{begin} and @var{end} are set to the beginning and
-end, respectively, of the active region, and XEmacs prompts for
-@var{character-set}.
+When called interactively, @var{begin} and @var{end} are set to the
+beginning and end, respectively, of the active region, and the function
+prompts for @var{character-set}.  The function does completion, knows
+how to guess a character set name from a coding system name, and also
+provides some common aliases.  See @code{latin-unity-guess-charset}.
+There is no way to specify @var{coding-system}, as it has no useful
+function interactively.
 
-Return @var{coding-system} if @var{coding-system} can encode all characters in the
-region, t if @var{coding-system} is nil and the coding system with G0 = 'ascii
-and G1 = @var{character-set} can encode all characters, and otherwise nil.  Note
-that a non-null return does @emph{not} mean it is safe to write the file, only
-the specified region.  (This behavior is useful for multipart MIME encoding
-and the like.)
-
-Interactively @var{begin} and @var{end} are set to the current region and the function
-prompts for @var{character-set}.  There is no way to specify @var{coding-system}, as it
-has no useful function interactively.
+Return @var{coding-system} if @var{coding-system} can encode all
+characters in the region, t if @var{coding-system} is nil and the coding
+system with G0 = 'ascii and G1 = @var{character-set} can encode all
+characters, and otherwise nil.  Note that a non-null return does
+@emph{not} mean it is safe to write the file, only the specified region.
+(This behavior is useful for multipart MIME encoding and the like.)
 
 Note:  by default this function is quite fascist about universal coding
 systems.  It only admits @samp{utf-8}, @samp{iso-2022-7}, and
@@ -502,11 +504,8 @@ To recode characters that were decoded in the wrong coding system, use
 
 @defun latin-unity-recode-region begin end wrong-cs right-cs
 
-Recode characters between @var{begin} and @var{end} from @var{wrong-cs} to @var{right-cs}.
-
-When called interactively, @var{begin} and @var{end} are set to the beginning and
-end, respectively, of the active region, and XEmacs prompts for @var{wrong-cs}
-and @var{right-cs}.
+Recode characters between @var{begin} and @var{end} from @var{wrong-cs}
+to @var{right-cs}.
 
 @var{wrong-cs} and @var{right-cs} are character sets.  Characters retain
 the same code point but the character set is changed.  Only characters
@@ -515,6 +514,13 @@ character may change.  Note that this could be dangerous, if characters
 whose identities you do not want changed are included in the region.
 This function cannot guess which characters you want changed, and which
 should be left alone.
+
+When called interactively, @var{begin} and @var{end} are set to the
+beginning and end, respectively, of the active region, and the function
+prompts for @var{wrong-cs} and @var{right-cs}.  The function does
+completion, knows how to guess a character set name from a coding system
+name, and also provides some common aliases.  See
+@code{latin-unity-guess-charset}.
 
 Another way to accomplish this, but using coding systems rather than
 character sets to specify the desired recoding, is
@@ -529,17 +535,22 @@ of any characters, use @samp{latin-unity-remap-region}.
 
 @defun latin-unity-recode-coding-region begin end wrong-cs right-cs
 
-Recode text between @var{begin} and @var{end} from @var{wrong-cs} to @var{right-cs}.
+Recode text between @var{begin} and @var{end} from @var{wrong-cs} to
+@var{right-cs}.
 
-When called interactively, @var{begin} and @var{end} are set to the beginning and
-end, respectively, of the active region, and XEmacs prompts for @var{wrong-cs}
-and @var{right-cs}.
+@var{wrong-cs} and @var{right-cs} are coding systems.  Characters retain
+the same code point but the character set is changed.  The identity of
+characters may change.  This is an inherently dangerous function;
+multilingual text may be recoded in unexpected ways.  #### It's also
+dangerous because the coding systems are not sanity-checked in the
+current implementation.
 
-@var{wrong-cs} and @var{right-cs} are coding systems.  Characters retain the same code
-point but the character set is changed.  The identity of characters may change.
-This is an inherently dangerous function; multilingual text may be recoded in
-unexpected ways.  #### It's also dangerous because the coding systems are not
-sanity-checked in the current implementation.
+When called interactively, @var{begin} and @var{end} are set to the
+beginning and end, respectively, of the active region, and the function
+prompts for @var{wrong-cs} and @var{right-cs}.  The function does
+completion, knows how to guess a coding system name from a character set
+name, and also provides some common aliases.  See
+@code{latin-unity-guess-coding-system}.
 
 Another, safer, way to accomplish this, using character sets rather than coding
 systems to specify the desired recoding, is to use `latin-unity-recode-region.

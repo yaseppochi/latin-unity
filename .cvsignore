@@ -3,3 +3,4 @@ auto-autoloads.el
 custom-load.el
 package-info
 pdepends.mk
+*.info*

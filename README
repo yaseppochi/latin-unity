@@ -1,6 +1,6 @@
 ***** latin-unity
 
-Last-modified: 2002 March 14
+Last-modified: 2002 March 22
 
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
@@ -114,7 +114,7 @@ Planned, mostly near future:
 
   o Fix JIS Roman (as an alternative to ASCII) support.
 
-  o Support Latin-10 (ISO 8859/16) aka Latin-2 + EURO SIGN.
+  o Support Latin-10 (ISO 8859/16) and maybe others.
 
   o More UI features (like highlighting unrepresentable chars in buffer).
 
@@ -138,19 +138,20 @@ Not planned any time soon:
 latin-unity.el is the main library, providing the detection and translation
 functionality, including a hook function to hang on `write-region-pre-hook'.
 
-latin-unity-vars.el contains the definition of ISO 8859/15 and variables
-common to several modules.
+latin-unity-vars.el contains the definition of variables common to
+several modules.
 
-latin-unity-latin9.el defines the Latin-9 environment.  It contains
-Latin-9 characters so cannot be part of latin-unity-vars.el.
+latin-unity-latin9.el defines ISO 8859/15 and the Latin-9 environment.
 
 latin-euro-input.el contains Dave Love's Quail input method for Latin 9.
 
 latin-unity-tables.el contains the table of feasible character sets and
 equivalent Mule characters from other character sets for the various Mule
-representations of each character.  Automatically generated.
+representations of each character.  Automatically generated.  Used only when
+Unicode support is not present.
 
-latin-unity-utils.el contains utilities for creating the equivalence
-table.
+latin-unity-utils.el contains utilities for creating the equivalence table,
+and dumping it to a file.  Used in preference to the precomputed table when
+Unicode support is available.
 
 

@@ -5,7 +5,7 @@
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
 ;; Created: 2002 January 17
-;; Last-modified: 2002 March 14
+;; Last-modified: 2002 March 23
 
 ;; This file is part of XEmacs.
 
@@ -42,11 +42,15 @@
 
 
 ;;; Requires
-;; Do NOT require latin-unity-utils; that requires Mule-UCS.
 
-(require 'latin-unity-vars)		; define iso-8859-15
-(require 'latin-unity-latin9)		; uses iso-8859-15
-(require 'latin-unity-tables)
+(require 'latin-unity-vars)
+(require 'latin-unity-latin9)		; define iso-8859-15
+;; #### uncomment when we have ISO 8859/16
+;(require 'latin-unity-latin10)		; define iso-8859-16
+(if (or (fboundp 'character-to-unicode)	; XEmacs  post-21.5.5
+	(fboundp 'char-to-ucs))		; Mule-UCS already loaded
+    (require 'latin-unity-tables "latin-unity-utils")
+  (require 'latin-unity-tables))	; doesn't require Unicode support
 
 
 ;;; User customization

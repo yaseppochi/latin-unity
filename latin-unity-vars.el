@@ -5,7 +5,7 @@
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
 ;; Created: 2002 January 26
-;; Last-modified: 2002 March 7
+;; Last-modified: 2002 March 23
 
 ;; This file is part of XEmacs.
 
@@ -33,57 +33,14 @@
 ;; determine the list of coding systems which can encode all of the
 ;; characters in the buffer.
 
-;; Provides the 'iso-8859-15 coding system if not yet defined.
-
-;; This file must not contain non-builtin charsets outside of comments,
-;; due to a bug fixed in XEmacs 21.4.7/21.5.7.  For that reason, the Latin-9
-;; language environment is provided in latin-unity-latin9.el.
-
 ;;; Code:
 
 (provide 'latin-unity-vars)
 
+;; Latin-9 charset, ISO 8859/15 coding system, Latin-9 environment
+(require 'latin-unity-latin9)
+
 ;;; User customization is in latin-unity.el
-
-;; define ISO-8859-15 for XEmacs 21.4 and earlier
-;(eval-when (compile load eval)
-;;;###autoload
-(unless (find-charset 'latin-iso8859-15)
-  ;; Create character set
-  (make-charset
-   'latin-iso8859-15 "ISO8859-15 (Latin 9)"
-   '(short-name "Latin-9"
-     long-name "ISO8859-15 (Latin 9)"
-     registry "iso8859-15"
-     dimension 1
-     columns 1
-     chars 96
-     final ?b
-     graphic 1
-     direction l2r))
-  ;; For syntax of Latin-9 characters.
-  (require 'cl)
-  (load-library "cl-macs")		; howcum no #'provide?
-  (loop for c from 64 to 127		; from ',b@(B' to ',b(B'
-    do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
-  (mapc (lambda (c)
-	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
-	'(#xA6 #xA8 #xB4 #xB8 #xBC #xBD #xBE))
-  
-  (modify-syntax-entry (make-char 'latin-iso8859-15 32) "w") ; no-break space
-  (modify-syntax-entry (make-char 'latin-iso8859-15 87) "_") ; multiply
-  (modify-syntax-entry (make-char 'latin-iso8859-15 119) "_") ; divide
-  )
-
-(unless (find-coding-system 'iso-8859-15)
-  ;; Create coding system
-  (make-coding-system
-   'iso-8859-15 'iso2022 "MIME ISO-8859-15"
-   '(charset-g0 ascii
-     charset-g1 latin-iso8859-15
-     charset-g2 t			; grrr
-     charset-g3 t			; grrr
-     mnemonic "MIME/Ltn-9")))
 
 ;; latin-unity-equivalence-table
 ;; could speed things up a tiny bit by splitting out the bit-vector, but
@@ -108,35 +65,37 @@ The table is actually loaded from latin-unity-tables.el.")
 
 ;;; Variables
 
-(defvar latin-unity-debug nil
+(defcustom latin-unity-debug nil
   "If non-nil, make file write operations as slow as molasses.
-If there were bugs, this might help find them, but there aren't. ;^)")
+If there were bugs, this might help find them, but there aren't. ;^)"
+  :type 'boolean
+  :group 'latin-unity)
 
 (defvar latin-unity-help-buffer " *Coding system conflict*")
 
 (defconst latin-unity-coding-systems
-  `(iso-8859-1 iso-8859-2 iso-8859-3 iso-8859-4 iso-8859-9
-    ;; if these coding systems are defined, uncomment for latin-unity support
-    ;iso-8859-10			; unsupported in Mule
-    ;iso-8859-13			; unsupported in Mule
-    ;iso-8859-14			; unsupported in Mule
-    iso-8859-15)
+  (let (lucs)
+    (mapc (lambda (x)
+	    (when (find-coding-system x)
+	      (setq lucs (cons x lucs))))
+	  '(iso-8859-1 iso-8859-2 iso-8859-3 iso-8859-4 iso-8859-9
+	    iso-8859-10 iso-8859-13 iso-8859-14 iso-8859-15 iso-8859-16))
+    (nreverse lucs))
   "List of coding systems \"unified\" by latin-unity.
 
 Cf. `latin-unity-character-sets'.")
 
 (defconst latin-unity-character-sets
-   (append '(latin-iso8859-1 latin-iso8859-2 latin-iso8859-3
-	     latin-iso8859-4 latin-iso8859-9)
-	   (when (memq 'iso-8859-10 latin-unity-coding-systems)
-	     '(latin-iso8859-10))
-	   (when (memq 'iso-8859-13 latin-unity-coding-systems)
-	     '(latin-iso8859-13))
-	   (when (memq 'iso-8859-14 latin-unity-coding-systems)
-	     '(latin-iso8859-14))
-	   '(latin-iso8859-15)
-	   ;; above are all GR sets, below are normally GL
-	   '(ascii latin-jisx0201))
+  (let (lucs)
+    (mapc (lambda (x)
+	    (when (find-charset x)
+	      (setq lucs (cons x lucs))))
+	  '(latin-iso8859-1 latin-iso8859-2 latin-iso8859-3 latin-iso8859-4
+	    latin-iso8859-9 iso-8859-10 iso-8859-13 latin-iso8859-14
+	    latin-iso8859-15 latin-iso8859-16
+	    ;; above are all GR sets, below are normally GL
+	    ascii latin-jisx0201))
+    (nreverse lucs))
   "List of character sets \"unified\" by latin-unity.
 
 \"Unified\" is a misnomer, since actually these character sets are all
@@ -146,8 +105,8 @@ exception is the Japanese JIS X 0201 left half (JIS Roman), which is
 controversial.  It will by default be identified with ASCII, but also
 may take values elsewhere according to user preference.  (Unimplemented.)
 
-The ISO 8859 character sets are actually Latin-1 to Latin-9, the right
-halves of the ISO 8859.
+The ISO 8859 character sets are actually Latin-1 to Latin-10, the right
+halves of the ISO 8859 Latin character sets.
 
 ASCII and Unicode are treated implicitly.  All of the listed character
 sets are the GR of a coded character set that supports ASCII, except
@@ -163,21 +122,24 @@ streams that receive buffer contents.")
 with the equivalence table.")
 
 (defconst latin-unity-cset-codesys-alist
-  (append '((latin-iso8859-1  . iso-8859-1)
+  (let (lucs)
+    (mapc (lambda (x)
+	    (when (find-coding-system (cdr x))
+	      (setq lucs (cons x lucs))))
+	  '((latin-iso8859-1  . iso-8859-1)
 	    (latin-iso8859-2  . iso-8859-2)
 	    (latin-iso8859-3  . iso-8859-3)
 	    (latin-iso8859-4  . iso-8859-4)
-	    (latin-iso8859-9  . iso-8859-9))
-	  (when (memq 'iso-8859-10 latin-unity-coding-systems)
-	    '((latin-iso8859-10 . iso-8859-10)))
-	  (when (memq 'iso-8859-10 latin-unity-coding-systems)
-	    '((latin-iso8859-13 . iso-8859-13)))
-	  (when (memq 'iso-8859-10 latin-unity-coding-systems)
-	    '((latin-iso8859-14 . iso-8859-14)))
-	  '((latin-iso8859-15 . iso-8859-15)
+	    (latin-iso8859-9  . iso-8859-9)
+	    (latin-iso8859-10 . iso-8859-10)
+	    (latin-iso8859-13 . iso-8859-13)
+	    (latin-iso8859-14 . iso-8859-14)
+	    (latin-iso8859-15 . iso-8859-15)
+	    (latin-iso8859-16 . iso-8859-16)
 	    ;; the following mappings are bogus, the RightThang not clear
-	    (ascii            . t)		; any will do
-	    (latin-jisx0201   . iso2022)))	; need further information
+	    (ascii            . iso-8859-1)	; any will do
+	    (latin-jisx0201   . jisx0201)))	; doesn't currently exist
+    (nreverse lucs))
   "Map Latin charsets to corresponding coding systems or classes.")
 
 ;; bit vectors for checking the feasible character sets

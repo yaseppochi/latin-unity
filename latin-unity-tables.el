@@ -1,8 +1,14 @@
-;;; initialize latin-unity-equivalences
-;;; Do not edit -- automatically generated.
+;;; latin-unity-tables.el --- initialize latin-unity-equivalences
+;; Do not edit -- automatically generated.
+;; Created: 2002 March 23
 (provide 'latin-unity-tables)
 (defconst latin-unity-equivalences
   (let ((table (make-char-table 'generic)))
+    ;; default all non-Latin charsets
+    (put-char-table t [0 nil nil nil nil nil nil nil nil nil] table)
+    ;; Control 1 code points are spatial
+    ;; Warning on these is beyond this library's scope.
+    (put-char-table 'control-1 [255 nil nil nil nil nil nil nil nil nil] table)
     (put-char-table (make-char 'ascii 0) (vector #x40 nil nil nil nil nil nil (make-char 'ascii 0) nil #x0) table)
     (put-char-table (make-char 'ascii 1) (vector #x40 nil nil nil nil nil nil (make-char 'ascii 1) nil #x1) table)
     (put-char-table (make-char 'ascii 2) (vector #x40 nil nil nil nil nil nil (make-char 'ascii 2) nil #x2) table)
@@ -547,11 +553,6 @@
     (put-char-table (make-char 'latin-iso8859-4 125) (vector #x8 nil nil nil (make-char 'latin-iso8859-4 125) nil nil nil nil #x169) table)
     (put-char-table (make-char 'latin-iso8859-4 126) (vector #x8 nil nil nil (make-char 'latin-iso8859-4 126) nil nil nil nil #x16B) table)
     (put-char-table (make-char 'latin-iso8859-4 127) (vector #xE nil (make-char 'latin-iso8859-2 127) (make-char 'latin-iso8859-3 127) (make-char 'latin-iso8859-4 127) nil nil nil nil #x2D9) table)
-    (put-char-table 'thai-tis620 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'greek-iso8859-7 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'arabic-iso8859-6 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'hebrew-iso8859-8 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'katakana-jisx0201 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
     (put-char-table (make-char 'latin-jisx0201 33) (vector #xC0 nil nil nil nil nil nil (make-char 'ascii 33) (make-char 'latin-jisx0201 33) #x21) table)
     (put-char-table (make-char 'latin-jisx0201 34) (vector #xC0 nil nil nil nil nil nil (make-char 'ascii 34) (make-char 'latin-jisx0201 34) #x22) table)
     (put-char-table (make-char 'latin-jisx0201 35) (vector #xC0 nil nil nil nil nil nil (make-char 'ascii 35) (make-char 'latin-jisx0201 35) #x23) table)
@@ -646,7 +647,6 @@
     (put-char-table (make-char 'latin-jisx0201 124) (vector #xC0 nil nil nil nil nil nil (make-char 'ascii 124) (make-char 'latin-jisx0201 124) #x7C) table)
     (put-char-table (make-char 'latin-jisx0201 125) (vector #xC0 nil nil nil nil nil nil (make-char 'ascii 125) (make-char 'latin-jisx0201 125) #x7D) table)
     (put-char-table (make-char 'latin-jisx0201 126) (vector #x80 nil nil nil nil nil nil nil (make-char 'latin-jisx0201 126) #x203E) table)
-    (put-char-table 'cyrillic-iso8859-5 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
     (put-char-table (make-char 'latin-iso8859-9 32) (vector #x3F (make-char 'latin-iso8859-1 32) (make-char 'latin-iso8859-2 32) (make-char 'latin-iso8859-3 32) (make-char 'latin-iso8859-4 32) (make-char 'latin-iso8859-9 32) (make-char 'latin-iso8859-15 32) nil nil #xA0) table)
     (put-char-table (make-char 'latin-iso8859-9 33) (vector #x31 (make-char 'latin-iso8859-1 33) nil nil nil (make-char 'latin-iso8859-9 33) (make-char 'latin-iso8859-15 33) nil nil #xA1) table)
     (put-char-table (make-char 'latin-iso8859-9 34) (vector #x31 (make-char 'latin-iso8859-1 34) nil nil nil (make-char 'latin-iso8859-9 34) (make-char 'latin-iso8859-15 34) nil nil #xA2) table)
@@ -743,22 +743,6 @@
     (put-char-table (make-char 'latin-iso8859-9 125) (vector #x14 nil nil (make-char 'latin-iso8859-3 57) nil (make-char 'latin-iso8859-9 125) nil nil nil #x131) table)
     (put-char-table (make-char 'latin-iso8859-9 126) (vector #x16 nil (make-char 'latin-iso8859-2 58) (make-char 'latin-iso8859-3 58) nil (make-char 'latin-iso8859-9 126) nil nil nil #x15F) table)
     (put-char-table (make-char 'latin-iso8859-9 127) (vector #x31 (make-char 'latin-iso8859-1 127) nil nil nil (make-char 'latin-iso8859-9 127) (make-char 'latin-iso8859-15 127) nil nil #xFF) table)
-    (put-char-table 'japanese-jisx0208-1978 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-gb2312 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'japanese-jisx0208 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'korean-ksc5601 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'japanese-jisx0212 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-cns11643-1 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-cns11643-2 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-big5-1 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-big5-2 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'arabic-digit (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'arabic-1-column (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'arabic-2-column (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'sisheng (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'ipa (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'vietnamese-viscii-lower (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'vietnamese-viscii-upper (vector #x0 nil nil nil nil nil nil nil nil nil) table)
     (put-char-table (make-char 'latin-iso8859-15 32) (vector #x3F (make-char 'latin-iso8859-1 32) (make-char 'latin-iso8859-2 32) (make-char 'latin-iso8859-3 32) (make-char 'latin-iso8859-4 32) (make-char 'latin-iso8859-9 32) (make-char 'latin-iso8859-15 32) nil nil nil) table)
     (put-char-table (make-char 'latin-iso8859-15 33) (vector #x31 (make-char 'latin-iso8859-1 33) nil nil nil (make-char 'latin-iso8859-9 33) (make-char 'latin-iso8859-15 33) nil nil nil) table)
     (put-char-table (make-char 'latin-iso8859-15 34) (vector #x31 (make-char 'latin-iso8859-1 34) nil nil nil (make-char 'latin-iso8859-9 34) (make-char 'latin-iso8859-15 34) nil nil nil) table)
@@ -855,13 +839,6 @@
     (put-char-table (make-char 'latin-iso8859-15 125) (vector #x23 (make-char 'latin-iso8859-1 125) (make-char 'latin-iso8859-2 125) nil nil nil (make-char 'latin-iso8859-15 125) nil nil nil) table)
     (put-char-table (make-char 'latin-iso8859-15 126) (vector #x21 (make-char 'latin-iso8859-1 126) nil nil nil nil (make-char 'latin-iso8859-15 126) nil nil nil) table)
     (put-char-table (make-char 'latin-iso8859-15 127) (vector #x31 (make-char 'latin-iso8859-1 127) nil nil nil (make-char 'latin-iso8859-9 127) (make-char 'latin-iso8859-15 127) nil nil nil) table)
-    (put-char-table 'chinese-cns11643-3 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-cns11643-4 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-cns11643-5 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-cns11643-6 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-cns11643-7 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'chinese-isoir165 (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'ethiopic (vector #x0 nil nil nil nil nil nil nil nil nil) table)
-    (put-char-table 'thai-xtis (vector #x0 nil nil nil nil nil nil nil nil nil) table)
     table)
   "Map a (Latin) Mule character to the set of character sets containing it.")
+;;; end of latin-unity-tables.el

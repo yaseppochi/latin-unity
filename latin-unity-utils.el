@@ -4,6 +4,8 @@
 
 ;; Author: Stephen J. Turnbull
 ;; Keywords: mule, charsets
+;; Created: 2002 January 26
+;; Last-modified: 2002 March 23
 
 ;; This file is part of XEmacs.
 
@@ -39,20 +41,22 @@
 ;;; Code:
 
 (provide 'latin-unity-utils)
-(provide 'latin-unity-tables)		; Needed to fake out the require of
-					; latin-unity below.  But not a lie.
+(provide 'latin-unity-tables)	; Not a lie.
 
 ;;; Requires
 (require 'cl)
-(load-library "cl-macs")		; howcum no #'provide?
-(require 'latin-unity)			; for the various variables, especially
-					; tables, indicies, and flags.
-					; #### should split them out to a file
-					; also for ISO 8859/15
-;; the following libraries are from Mule-UCS.
-;; this dependency can be eliminated by providing char-to-ucs.
-(require 'unicode)
-(require 'un-define)
+(load-library "cl-macs")	; howcum no #'provide?
+(require 'latin-unity-latin9)
+;(require 'latin-unity-latin10)	; #### when we have it
+(require 'latin-unity-vars)
+
+(if (fboundp 'character-to-unicode)
+    ;; #### untested
+    (fset 'char-to-ucs 'character-to-unicode)
+  ;; the following libraries are from Mule-UCS.
+  ;; this dependency can be eliminated by providing char-to-ucs.
+  (require 'mule-ucs-unicode "unicode")
+  (require 'un-define))
 
 ;; table of character set support for each Unicode code point
 ;; Table from http://www.cs.tut.fi/~jkorpela/iso8859/charsupp.htm8
@@ -290,11 +294,20 @@
   (erase-buffer)
 
   ;; insert preface
-  (insert   ";;; initialize latin-unity-equivalences"
-	  "\n;;; Do not edit -- automatically generated."
-	  "\n(provide 'latin-unity-tables)"
-	  "\n(defconst latin-unity-equivalences"
-	  "\n  (let ((table (make-char-table 'generic)))")
+  (let ((nilvec (make-vector (+ (length latin-unity-character-sets) 2) nil)))
+    (insert ";;; latin-unity-tables.el --- initialize latin-unity-equivalences"
+	    "\n;; Do not edit --- automatically generated."
+	    "\n;; Created: " (format-time-string "%Y %B %d")
+	    "\n(provide 'latin-unity-tables)"
+	    "\n(defconst latin-unity-equivalences"
+	    "\n  (let ((table (make-char-table 'generic)))"
+	    "\n    ;; default all non-Latin charsets"
+    (format "\n    (put-char-table t %s table)"
+	    (progn (aset nilvec 0 0) nilvec))
+            "\n    ;; Control 1 code points are spatial"
+	    "\n    ;; Warning on these is beyond this library's scope."
+    (format "\n    (put-char-table 'control-1 %s table)"
+	    (progn (aset nilvec 0 latin-unity-all-flags) nilvec))))
 
   ;; insert table insertions
   ;; alternate mmc: (format "(apply #'make-char '%s)" (split-char ch))
@@ -304,24 +317,25 @@
 		     (if (third x) (format " %d)" (third x)) ")")))))
     (map-char-table
      (lambda (key val)
-       (insert (format "\n    (put-char-table %s (vector %s) table)"
-		       (cond ((characterp key) (mmc key))
-			     ((symbolp key) (format "'%s" key)))
-		       (mapconcat
-			(lambda (elt)
-			  (cond ((characterp elt) (mmc elt))
-				((null elt) "nil")
-				;; be careful to emit read syntax here!
-				((integerp elt) (format "#x%X" elt))
-				(t (format "%s" elt))))
-			val
-			" "))))
+       (when (characterp key)
+	 (insert (format "\n    (put-char-table %s (vector %s) table)"
+			 (mmc key)
+			 (mapconcat
+			  (lambda (elt)
+			    (cond ((characterp elt) (mmc elt))
+				  ((null elt) "nil")
+				  ;; be careful to emit read syntax here!
+				  ((integerp elt) (format "#x%X" elt))
+				  (t (format "%s" elt))))
+			  val
+			  " ")))))
      latin-unity-equivalences))
 
   ;; insert trailing matter
   (insert "\n    table)"
 	  "\n  \"Map a (Latin) Mule character to the set of"
 	  " character sets containing it.\")"
+	  "\n;;; end of latin-unity-tables.el"
 	  "\n")
 
   ;; write the file

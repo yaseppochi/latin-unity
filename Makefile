@@ -19,7 +19,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-# Last-Modified: 14 March 2002
+# Last-modified: 2002 March 23
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
 VERSION = 1.00
@@ -35,7 +35,7 @@ ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-latin9.elc latin-unity-tables.elc latin-unity-utils.elc
 
 # for defvars and creation of ISO 8859/15 charset and coding system
-PRELOADS=-l cl-macs -l latin-unity-vars.el
+PRELOADS=-l cl-macs -l latin-unity-latin9.el -l latin-unity-vars.el
 
 TEXI_FILES = $(PACKAGE).texi
 INFO_FILES = $(PACKAGE).info
