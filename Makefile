@@ -63,16 +63,13 @@ check: all
 		-f latin-unity-install -f latin-unity-test \
 		-eval "(write-file \"./latintest\" nil 'iso-2022-7)"
 
-srckit: srckit-std
-
 binkit: binkit-common
 
 else
 all::
 	@echo Latin-Unity requires XEmacs/Mule to build
 
-# Two noops
-srckit:
+# Noop
 binkit:
 
 endif
