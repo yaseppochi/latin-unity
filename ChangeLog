@@ -1,3 +1,14 @@
+2002-10-31  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* Makefile (latin-unity-tables.el): Use BOOT_XEMACS.  Improve warning.
+	(REQUIRES): Conditionally depend on existence of ../mule-ucs.
+
+	* latin-unity-utils.el: Fix typos in charset names.
+	Delete comment documenting old way to do tables.
+	(latin-unity-dump-tables): Don't prompt for confirmation when
+	overwriting latin-unity-tables.el.  Check for
+	latin-unity-tables.el when Unicode support is not available.
+
 2002-10-30  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity-utils.el: Add progress messages for hardcoded charsets.

@@ -27,9 +27,14 @@ AUTHOR_VERSION = $(VERSION)
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
 PKG_TYPE = regular
-# The Mule-UCS, leim, and fsf-compat requires will go away at some point
-REQUIRES = mule-base mule-ucs leim fsf-compat dired
 CATEGORY = mule
+
+# The Mule-UCS, leim, and fsf-compat requires will go away at some point
+ifeq ($(wildcard ../mule-ucs),)
+REQUIRES = mule-base leim fsf-compat dired
+else
+REQUIRES = mule-base mule-ucs leim fsf-compat dired
+endif
 
 ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-latin7.elc latin-latin7-input.elc latin-unity-latin9.elc \
@@ -59,10 +64,9 @@ all:: $(GENERATED) $(ELCS) $(INFO_FILES)
 
 # Experimental rule to build latin-unity-tables.el.
 latin-unity-tables.el: latin-unity-vars.elc latin-unity-utils.elc
-	@echo "*** Warnings about ISO 8859/3 are OK; it doesn't use all code points. ***"
-	$(XEMACS) -batch -no-autoloads -l dired \
-		-eval '(setq load-path (cons (default-directory) load-path))' \
-		-l latin-unity-utils -f latin-unity-dump-tables
+	$(BOOT_XEMACS) -l latin-unity-utils -f latin-unity-dump-tables
+	@echo "*** You may see a few warnings about ISO 8859/3. ***"
+	@echo "*** This is OK; it doesn't use all code points.  ***"
 
 clean:: tableclean
 
