@@ -10,8 +10,8 @@
 @c %**end of header
 
 @c Version values, for easy modification
-@set VERSION 1.0
-@set UPDATED Thursday 2002 March 23
+@set VERSION 1.1
+@set UPDATED Monday, February 7, 2005
 
 @c ** Many people seem to prefer this footenote style
 @footnotestyle end
@@ -1044,16 +1044,12 @@ compress your files.
 @node Interfaces, Charsets and Coding Systems, What latin-unity Cannot Do for You, Top
 @chapter Interfaces
 
-The Latin-9 language environment is provided in
-@file{latin-unity-latin9.el}.  This file when compiled contains Latin 9
-characters, so you @strong{must} load @file{latin-unity-vars.el} first
-to define those characters.  Otherwise the Lisp reader is likely to
-signal an error due to stray ISO 2022 control sequences.
-
-Similar considerations apply to @file{latin-unity-latin7.el},
-@file{latin-unity-latin8.el} and @file{latin-unity-latin10.el}.
-
-Sorry, that's all I have to say for now---but it's important!
+Various recent---dating from the end of the nineties---ISO 8859 standard
+language environments used to be provided with this package, but they
+have been refactored out into their own package,
+@i{latin-euro-standards}, on which this one depends. See the
+documentation for that package if you're interested in using those from
+Lisp.
 
 @node Charsets and Coding Systems, Internals, Interfaces, Top
 @chapter Charsets and Coding Systems

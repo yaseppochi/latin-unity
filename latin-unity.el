@@ -43,12 +43,7 @@
 ;;; Requires
 
 (require 'latin-unity-vars)
-(require 'latin-unity-latin7)		; define iso-8859-13
-;; uncomment to add support for ISO 8859/14
-;(require 'latin-unity-latin8)		; define iso-8859-14
-(require 'latin-unity-latin9)		; define iso-8859-15
-;; uncomment to add support for ISO 8859/16
-;(require 'latin-unity-latin10)		; define iso-8859-16
+
 (if (or (fboundp 'character-to-unicode)	; XEmacs  post-21.5.5
 	(fboundp 'char-to-ucs))		; Mule-UCS already loaded
     (require 'latin-unity-tables "latin-unity-utils")

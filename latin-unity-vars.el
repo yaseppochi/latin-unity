@@ -37,24 +37,9 @@
 
 (provide 'latin-unity-vars)
 
-;; If you consider any of these bloat, you can comment them out, but
-;; YOU MUST REGENERATE latin-unity-tables.el.  The table and the code
-;; depend on arbitrarily chosen indexes for the charsets.
-
-;; Latin-7 charset, ISO 8859/13 coding system, Latin-7 environment (Baltic Rim)
-;; Few people will need this, but it avoids screwups.
-(require 'latin-unity-latin7)
-
-;; Latin-8 charset, ISO 8859/14 coding system, Latin-8 environment (Celtic)
-;; Few people will need this, but it avoids screwups.
-(require 'latin-unity-latin8)
-
-;; Latin-9 charset, ISO 8859/15 coding system, Latin-9 environment (Euro)
-(require 'latin-unity-latin9)
-
-;; Latin-10 charset, ISO 8859/16 coding system, Latin-10 environment (Romanian)
-;; Few people will need this, but it avoids screwups.
-(require 'latin-unity-latin10)
+;; Load the latin{7,8,9,10} language environments, character sets, and
+;; coding systems.
+(require 'latin-euro-standards)
 
 ;;; User customization is in latin-unity.el
 

@@ -1,6 +1,6 @@
 # Makefile for latin-unity
 
-# Copyright (C) 2002 Free Software Foundation, Inc.
+# Copyright (C) 2002, 2005 Free Software Foundation, Inc.
 
 # This file is part of XEmacs.
 
@@ -19,10 +19,10 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-# Last-modified: 2002 October 24
+# Last-modified: 2005 February 7
 
 # The XEmacs CVS version is canonical.  Keep versions n'sync.
-VERSION = 1.10
+VERSION = 1.11
 AUTHOR_VERSION = $(VERSION)
 MAINTAINER = Stephen J. Turnbull <stephen@xemacs.org>
 PACKAGE = latin-unity
@@ -31,9 +31,9 @@ CATEGORY = mule
 
 # The Mule-UCS, leim, and fsf-compat requires will go away at some point
 ifeq ($(wildcard ../mule-ucs),)
-REQUIRES = mule-base leim fsf-compat dired
+REQUIRES = mule-base latin-euro-standards leim fsf-compat dired
 else
-REQUIRES = mule-base mule-ucs leim fsf-compat dired
+REQUIRES = mule-base latin-euro-standards mule-ucs leim fsf-compat dired
 endif
 
 # Latin-Unity is a unique package in that it does not compile or run
@@ -50,11 +50,12 @@ ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-latin8.elc latin-unity-latin10.elc \
        latin-unity-utils.elc
 
+
 EXTRA_SOURCES = latin-unity-tests.el latin-unity-tables.el
 
 # for defvars and creation of ISO 8859/13 and ISO 8859/15 charsets and
 # coding system
-PRELOADS=-l cl-macs -l latin-unity-latin7.el -l latin-unity-latin9.el \
+PRELOADS=-l cl-macs \
          -l latin-unity-vars.el
 
 STANDARD_DOCS = t

@@ -37,107 +37,26 @@
 
 ;;; Code:
 
-;; define ISO-8859-15 for XEmacs 21.4 and earlier
-;;;###autoload
-(unless (find-charset 'latin-iso8859-15)
-  ;; Create character set
-  (make-charset
-   'latin-iso8859-15 "ISO8859-15 (Latin 9)"
-   ;; sheesh, what we do for backward compatibility
-   ;; #### this test and the similar one below probably should be
-   ;; reformulated to use condition-case
-   (append (if (emacs-version>= 21 4)
-	       '(short-name "Latin-9"
-		 long-name "ISO8859-15 (Latin 9)")
-	     nil)
-	   '(registry "iso8859-15"
-	     dimension 1
-	     columns 1
-	     chars 96
-	     final ?b
-	     graphic 1
-	     direction l2r)))
-  ;; For syntax of Latin-9 characters.
-  (require 'cl)
-  (load "cl-macs" nil t)		; howcum no #'provide?
-  (loop for c from 64 to 127		; from 'À' to 'ÿ'
-    do (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
-  (mapc (lambda (c)
-	  (modify-syntax-entry (make-char 'latin-iso8859-15 c) "w"))
-	'(#xA6 #xA8 #xB4 #xB8 #xBC #xBD #xBE))
-  
-  (modify-syntax-entry (make-char 'latin-iso8859-15 32) "w") ; no-break space
-  (modify-syntax-entry (make-char 'latin-iso8859-15 87) "_") ; multiply
-  (modify-syntax-entry (make-char 'latin-iso8859-15 119) "_") ; divide
-  )
+;;; Actual functionality has been moved to the latin-euro-standards package,
+;;; to prevent a circular dependency for Mule-UCS. This is a compatibility
+;;; stub. -- Aidan Kehoe, Mon Feb 7 20:18:03 CET 2005
 
-;;;###autoload
-(unless (find-coding-system 'iso-8859-15)
-  ;; Create coding system
-  (make-coding-system
-   'iso-8859-15 'iso2022 "MIME ISO-8859-15"
-   '(charset-g0 ascii
-     charset-g1 latin-iso8859-15
-     charset-g2 t			; grrr
-     charset-g3 t			; grrr
-     mnemonic "MIME/Ltn-9")))
+(require 'latin-euro-standards)
 
-;;;###autoload
-(unless (assoc "Latin-9" language-info-alist)
-  (defun setup-latin9-environment ()
-    "Set up multilingual environment (MULE) for European Latin-9 users."
-    (interactive)
-    (set-language-environment "Latin-9"))
+;; Check that we're functionally equivalent to the old latin-unity-latin9.el
 
-  ;; sheesh, what we do for backward compatibility
-  (apply #'set-language-info-alist
-	 (append `("Latin-9"
-		   ((charset ascii latin-iso8859-15)
-		    (coding-system iso-8859-15)
-		    (coding-priority iso-8859-15)
-		    (input-method . "latin-9-prefix")
-		    (sample-text
-		     .
-		     ,(format "\
-Hello, Hej, Tere, Hei, Bonjour, Gr%c%c Gott, Ciao, %cHola!, my %c0.02"
-			      ;; SMALL U WITH UMLAUT
-			      (make-char 'latin-iso8859-15 #x7C)
-			      ;; GERMAN SHARP S
-			      (make-char 'latin-iso8859-15 #x5F)
-			      ;; INVERTED EXCLAMATION MARK
-			      (make-char 'latin-iso8859-15 #x21)
-			      ;; EURO SIGN
-			      (make-char 'latin-iso8859-15 #x24)))
-		    (documentation . "\
-This is a generic language environment for Latin-9 (ISO-8859-15).  It
-supports the Euro and the following languages:
- Danish, Dutch, English, Faeroese, Finnish, French, German, Icelandic,
- Irish, Italian, Norwegian, Portuguese, Spanish, and Swedish.
-We also have a German specific language environment \"German\".")))
-		 (if (emacs-version>= 21 1 15)
-		     '(("European"))
-		   nil))))
+;; The character set should exist.
+(assert (charsetp (find-charset 'latin-iso8859-16))
+	"`latin-euro-standards' didn't provide a Latin 9 character set!")
 
-;; #### move these to a separate file for keysyms.
-;; I think these are all the ones not in Latin-1.
-
-;;;###autoload
-(flet ((define-keysym-as-char (keysym character)
-	 (unless (lookup-key global-map (vector keysym))
-	   (define-key global-map (vector keysym) #'self-insert-command))
-	 (unless (get keysym 'ascii-character)
-	   (put keysym 'ascii-character character)))
-       (foo (k o)
-	 (define-keysym-as-char k (make-char 'latin-iso8859-15 o))))
-  (foo 'EuroSign   #x24)
-  (foo 'Scaron     #x26)
-  (foo 'scaron     #x28)
-  (foo 'Zcaron     #x34)
-  (foo 'zcaron     #x38)
-  (foo 'OE         #x3C)
-  (foo 'oe         #x3D)
-  (foo 'Ydiaeresis #x3E))
-
+;; As should the coding system.
+(assert (coding-system-p (find-coding-system 'iso-8859-15))
+	"`latin-euro-standards' didn't provide a Latin 9 coding system!")
+	
+;; And we should have a language environment. 
+(assert 
+ (assoc "Latin-9" language-info-alist)
+ "`latin-euro-standards' didn't provide a Latin 9 language environment!")
 
 (provide 'latin-unity-latin9)
 
