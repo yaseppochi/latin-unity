@@ -158,7 +158,7 @@ For general users:
 * Installation::                Installing @pkgname{} with your (X)Emacs.
 * Configuration::               Configuring @pkgname{} for use.
 * Bug Reports::                 Reporting bugs and problems.
-@c * Frequently Asked Questions::  Questions and answers from the mailing list.
+* Frequently Asked Questions::  Questions and answers from the mailing list.
 * Theory of Operation::         How @pkgname{} works.
 * What latin-unity Cannot Do for You::  Inherent problems of 8-bit charsets.
 
@@ -668,7 +668,7 @@ The default value is @samp{nil}.
 @end defopt
 
 
-@node Bug Reports, Theory of Operation, Configuration, Top
+@node Bug Reports, Frequently Asked Questions, Configuration, Top
 @chapter Reporting Bugs and Problems
 
 Please report bugs to the author, @email{stephen@@xemacs.org,Stephen
@@ -676,6 +676,58 @@ Turnbull}, or to the developers' mailing list,
 @email{xemacs-beta@@xemacs.org, XEmacs Beta}.
 
 Suggestions for improvement are welcome at the same addresses.
+
+
+@node Frequently Asked Questions, Theory of Operation, Bug Reports, Top
+@chapter Frequently Asked Questions
+
+@enumerate
+@item
+I'm smarter than latin-unity!  How can that be?
+
+Don't be surprised.  Trust yourself.
+
+latin-unity is very young as yet.  Teach it what you know by Customizing
+its variables, and report your changes to the maintainer (@pxref{Bug
+Reports}).
+
+@item
+What is a UCS?
+
+According to ISO 10646, a Universal Coded character Set.  In
+latin-unity, it's Universal (Mule) Coding System.
+@ref{Coding Systems, , , xemacs}
+
+@item
+I know utf-16-le-bom is a UCS, but latin-unity won't use it.  Why not?
+
+There are an awful lot of UCSes in Mule, and you probably do not want to
+ever use, and definitely not be asked about, most of them.  So the
+default set includes a few that the author thought plausible, but
+they're surely not comprehensive or optimal.
+
+Customize @code{latin-unity-ucs-list} to include the ones you use, and
+report your favorites to the maintainer for consideration for inclusion
+in the defaults, @xref{Bug Reports}.  (Note that you @emph{must} include
+@code{escape-quoted} in this list, because Mule uses it internally as
+the coding system for auto-save files.)
+
+Alternatively, if you just want to use it this one time, simply type it
+in at the prompt.  latin-unity will confirm that is a real coding
+system, and then assume that you know what you're doing.
+
+@item
+This is crazy: I can't quit XEmacs and get queried on autosaves!  Why?
+
+You probably removed @code{escape-quoted} from
+@code{latin-unity-ucs-list}.  Put it back.
+
+@item
+latin-unity is really buggy and I can't get any work done.
+
+First, use @kbd{M-x latin-unity-uninstall RET}, then report your
+problems as a bug (@pxref{Bug Reports}).
+@end enumerate
 
 
 @node Theory of Operation, What latin-unity Cannot Do for You, Bug Reports, Top
@@ -724,10 +776,10 @@ itself when a user enters characters using input methods associated with
 different coded character sets into a single buffer.
 
 There are two problems stemming from this design.  First, Mule
-represents the same character in different ways.  Abstractly, 'σ'
+represents the same character in different ways.  Abstractly, ',As(B'
 (LATIN SMALL LETTER O WITH ACUTE) can get represented as
 [latin-iso8859-1 #x73] or as [latin-iso8859-2 #x73].  So what looks like
-'σσ' in the display might actually be represented [latin-iso8859-1
+',Ass(B' in the display might actually be represented [latin-iso8859-1
 #x73][latin-iso8859-2 #x73] in the buffer, and saved as [#xF3 ESC - B
 #xF3 ESC - A] in the file.  In some cases this treatment would be
 appropriate (consider HYPHEN, MINUS SIGN, EN DASH, EM DASH, and U+4E00
@@ -757,8 +809,9 @@ This is clearly stupid.  What is not as obvious is that, just as any
 European can include American English in their text because ASCII is a
 subset of ISO 8859/15, most European languages which use Latin
 characters (eg, German and Polish) can typically be mixed while using
-only one Latin coded character set (in this case, ISO 8859/2).  However,
-this often depends on exactly what text is to be encoded.
+only one Latin coded character set (in the case of German and Polish,
+ISO 8859/2).  However, this often depends on exactly what text is to be
+encoded (even for the same pair of languages).
 
 @pkgname{} works around the problem by converting as many characters as
 possible to use a single Latin coded character set before saving the
@@ -774,7 +827,7 @@ set which contains all of the Latin characters in the buffer.
 The primary purpose of @pkgname{} is to fix the problem by giving the
 user the choice to change the representation of all characters to one
 character set and give sensible recommendations based on context.  In
-the 'σ' example, either ISO 8859/1 or ISO 8859/2 is satisfactory, and
+the ',As(B' example, either ISO 8859/1 or ISO 8859/2 is satisfactory, and
 both will be suggested.  In the EURO SIGN example, only ISO 8859/15
 makes sense, and that is what will be recommended.  In both cases, the
 user will be reminded that there are universal encodings available.
@@ -785,7 +838,7 @@ letter has the same code point in both character sets.  (Not entirely,
 but there are many examples of Latin characters that have different code
 points in different Latin-X sets.)
 
-Note in the 'σ' example, that treating the buffer in this way will
+Note that, in the ',As(B' example, that treating the buffer in this way will
 result in a representation such as [latin-iso8859-2
 #x73][latin-iso8859-2 #x73], and the file will be saved as [#xF3 #xF3].
 This is guaranteed to occasionally result in the second problem you
@@ -865,10 +918,10 @@ when possible.  But typically this will @emph{not} be in your usual
 locale.  Ie, the times that an ISO 8859/1 user will need @pkgname{} is
 when there are ISO 8859/2 characters in the buffer.  But then most
 likely the file will be saved in a pure 8-bit encoding that is not ISO
-8859/1, ie, ISO 8859/2.  But Mule's autorecognizer (which is probably
-the most sophisticated yet available) cannot tell the difference between
-ISO 8859/1 and ISO 8859/2, and in a Western European locale will choose
-the former even though the latter was intended.  Even the extension
+8859/1, ie, ISO 8859/2.  Mule's autorecognizer (which is probably the
+most sophisticated yet available) cannot tell the difference between ISO
+8859/1 and ISO 8859/2, and in a Western European locale will choose the
+former even though the latter was intended.  Even the extension
 (``statistical recognition'') planned for XEmacs 22 is unlikely to be at
 all accurate in the case of mixed codes.
 
@@ -879,6 +932,11 @@ mechanically disentangled.  You need a human being who can recognize
 that @emph{this is German and Swedish} and stays in Latin-1, while
 @emph{that is Polish} and needs to be recoded to Latin-2.
 
+Moral: switch to a universal coded character set, preferably Unicode
+using the UTF-8 transformation format.  If you really need the space,
+compress your files.
+
+
 @node Interfaces, Charsets and Coding Systems, What latin-unity Cannot Do for You, Top
 @chapter Interfaces
 
@@ -887,6 +945,9 @@ The Latin-9 language environment is provided in
 characters, so you @strong{must} load @file{latin-unity-vars.el} first
 to define those characters.  Otherwise the Lisp reader is likely to
 signal an error due to stray ISO 2022 control sequences.
+
+Similar considerations apply to @file{latin-unity-latin7.el},
+@file{latin-unity-latin8.el} and @file{latin-unity-latin10.el}.
 
 Sorry, that's all I have to say for now---but it's important!
 
@@ -913,6 +974,7 @@ identified with equivalents in other charsets in the group by
 
 @samp{latin-iso8859-1} @samp{latin-iso8859-15} @samp{latin-iso8859-2}
 @samp{latin-iso8859-3} @samp{latin-iso8859-4} @samp{latin-iso8859-9}
+@samp{latin-iso8859-13} @samp{latin-iso8859-16}
 
 The follow charsets are Latin variants which are not understood by
 @pkgname{}.  In addition, many of the Asian language standards provide
@@ -976,12 +1038,12 @@ combining ASCII in the GL register (bytes with high-bit clear) and an
 extended Latin character set in the GR register (bytes with high-bit set).
 
 @samp{iso-8859-15} @samp{iso-8859-2} @samp{iso-8859-3} @samp{iso-8859-4}
-@samp{iso-8859-9}
+@samp{iso-8859-9} @samp{iso-8859-13} @samp{iso-8859-14} @samp{iso-8859-16}
 
 These coding systems are single-byte, 8-bit coding systems that do not
-conform to general standards.  They should be avoided in all potentially
-multilingual contexts, including any text distributed over the Internet
-and World Wide Web.
+conform to international standards.  They should be avoided in all
+potentially multilingual contexts, including any text distributed over
+the Internet and World Wide Web.
 
 @samp{windows-1251}
 
@@ -1000,6 +1062,12 @@ exception for texts that mix several Asian ideographic character sets.)
 @samp{utf-16-be} @samp{utf-16-be-no-signature} @samp{utf-16-le}
 @samp{utf-16-le-no-signature} @samp{utf-7} @samp{utf-7-safe}
 @samp{utf-8} @samp{utf-8-ws}
+
+Development versions of XEmacs (the 21.5 series) support Unicode
+internally, with (at least) the following coding systems implemented:
+
+@samp{utf-16-be} @samp{utf-16-be-bom} @samp{utf-16-le}
+@samp{utf-16-le-bom} @samp{utf-8} @samp{utf-8-bom}
 
 @item Asian ideographic languages
 
@@ -1041,6 +1109,9 @@ thus cannot be safely used in a multilingual context.
 Mule uses the following coding systems for special purposes.
 
 @samp{automatic-conversion} @samp{undecided} @samp{escape-quoted}
+
+@samp{escape-quoted} is especially important, as it is used internally
+as the coding system for autosaved data.
 
 The following coding systems are aliases for others, and are used for
 communication with the host operating system.

@@ -5,4 +5,4 @@ disjoint, when ISO 8859 itself clearly considers them to be subsets of
 a larger character set.  This package provides functions to determine
 the list of coding systems which can encode all of the characters in
 the buffer, and translate to a common coding system.  It also provides
-Latin-9 charset, coding system, and input method.
+Latin-7 and Latin-9 charsets, coding systems, and input methods.

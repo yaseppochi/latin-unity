@@ -1,6 +1,6 @@
 ***** latin-unity
 
-Last-modified: 2002 March 22
+Last-modified: 2002 October 22
 
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
@@ -46,11 +46,27 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
     It allows the user to use other coding systems, and the list of
     suggested coding systems is Customizable.
 
+    latin-unity will automatically adjust buffer-file-coding-system to
+    the user's choice, on a Customizable basis.
+
+    Optionally checks -*- coding: codesys -*- cookies for consistency.
+    This only works for Emacs coding cookies; doesn't handle encoding
+    attributes in XML declarations or HTML META tags yet.
+
     This probably also is useful out of the box if the buffer contains
     non-Latin characters in addition to a mixture of Latin characters.
     For example, it would reduce a buffer originally encoded in
     ISO-2022-JP (including Latin-1 characters) to ISO 8859/1 if all
     the Japanese were deleted.  (untested)
+
+  o ISO 8859/13 for XEmacs 21.4 and 21.1 (both untested).
+    To get 'iso-8859-13 preferred to 'iso-8859-1 in autodetection, use
+    (set-coding-category-system 'iso-8-1 'iso-8859-13).  (untested)
+    Alternatively set language environment to Latin-7.
+
+    If all you want is ISO 8859/13 support, you can `(require
+    'latin-unity-latin7)' and `(require 'latin-latin7-input)', and not
+    do `(latin-unity-install)'.
 
   o ISO 8859/15 for XEmacs 21.4 (moderately tested) and 21.1 (lightly
     tested), including binding the EuroSign keysym to ISO 8859/15 0xA4.
@@ -59,7 +75,8 @@ ftp://ftp.xemacs.org/pub/xemacs/packages/latin-unity-VERSION-pkg.tar.gz
     Alternatively set language environment to Latin-9.
 
     If all you want is ISO 8859/15 support, you can `(require
-    'latin-unity-latin9)' and `(require 'latin-euro-input)'.
+    'latin-unity-latin9)' and `(require 'latin-euro-input)', and not
+    do `(latin-unity-install)'.
 
   o Hooks into `write-region' to prevent (or at least drastically
     reduce the probability of) introduction of ISO 2022 escape
@@ -114,8 +131,6 @@ Planned, mostly near future:
 
   o Fix the misfeatures.
 
-  o Check -*- coding: codesys -*- cookies for consistency.
-
   o Fix JIS Roman (as an alternative to ASCII) support.
 
   o Support Latin-10 (ISO 8859/16) and maybe others.
@@ -149,6 +164,10 @@ functionality, including a hook function to hang on `write-region-pre-hook'.
 latin-unity-vars.el contains the definition of variables common to
 several modules.
 
+latin-unity-latin7.el defines ISO 8859/13 and the Latin-7 environment.
+
+latin-latin7-input.el contains a Quail input method for Latin 7.
+
 latin-unity-latin9.el defines ISO 8859/15 and the Latin-9 environment.
 
 latin-euro-input.el contains Dave Love's Quail input method for Latin 9.
@@ -162,4 +181,5 @@ latin-unity-utils.el contains utilities for creating the equivalence table,
 and dumping it to a file.  Used in preference to the precomputed table when
 Unicode support is available.
 
-
+latin-unity-tests.el contains a (very incomplete) test suite using Martin
+Buchholz's test-harness.el (distributed in the core in tests/automated).

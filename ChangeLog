@@ -1,3 +1,145 @@
+2002-10-25  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+
+	* (latin-unity-tables.el): Regenerate with Latin-7,8,10.
+
+2002-10-24  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+
+	* latin-unity-utils.el (latin-unity-dump-tables): Put creation
+	date information in a couple of useful places.
+
+	* latin-unity-latin8.el:
+	* latin-unity-latin10.el:
+	New language environments.
+
+	* latin-unity-vars.el: Add requires for Latin-8 and Latin-10.
+
+	* latin-unity-utils.el (Table of Character Set Support): Fix typo.
+	Depend on latin-unity-vars.el to require the charset definitions.
+
+	* latin-unity.texi (Frequently Asked Questions): New node.
+	Thanks, Didier!
+	(Theory of Operation): Minor corrections.
+	(What latin-unity Cannot Do for You): Minor corrections.
+	(Interfaces): Document Latin 7, 8, and 10.
+	(Charsets and Coding Systems): Document	Latin 7, 8, and 10
+	support, Unicode support in 21.5, and importance of escape-quoted.
+
+2002-10-22  Stephen J. Turnbull  <steve@tleepslib.sk.tsukuba.ac.jp>
+
+	* BLURB: Update for Latin-7 support.
+
+	* README: Update for Latin-7 support and test suite.
+
+	* Makefile: Add latin-unity-latin-7.el, latin-latin7-input.el, and
+	latin-unity-tests.el.  Disable check target, currently being
+	revised to work with latin-unity-tests.el.
+
+	Reorganize sanity-check (and a couple other functions):
+	
+	* latin-unity.el (latin-unity-base-name): New function.
+	(latin-unity-maybe-set-coding-system):
+	(latin-unity-sanity-check):
+	(latin-unity-maybe-remap):
+	(latin-unity-hack-coding-cookie):
+	Use it.
+
+	(latin-unity-coding-system-latin-charset): New function.
+	(latin-unity-maybe-remap):
+	(latin-unity-sanity-check):
+	Use it.
+
+	(latin-unity-massage-name): New function.
+	(latin-unity-buffer-charsets-string): New function.
+	(latin-unity-sanity-check): Use them.
+
+	(latin-unity-sanity-check): 
+	(latin-unity-recommend-representation): 
+	Remove now unused bindings of 'preferred and 'buffer-default.
+
+
+2002-10-20  Stephen Turnbull  <steve@tleepslib1>
+
+	* latin-unity.el: Mark potential improvements in various places.
+	(latin-unity-preferred-coding-system-list):  Correct docstring.
+	(latin-unity-hack-coding-cookie): Fix symbol/name confusion.
+	(latin-unity-test): Deleted, tests move to latin-unity-test.el.
+	(latin-unity-list-coding-systems): Fix typo in comment.
+
+	* latin-unity-tests.el: New file, use with test-harness.el.
+
+2002-08-31  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-latin7.el: 
+	* latin-latin7-input.el:
+	New files for Latin 7 support.
+
+	* Makefile (ELCS): Add latin-7 .elc files.
+
+	* latin-unity-vars.el:
+	* latin-unity.el (latin-unity-charset-alias-alist): Add latin-7.
+
+	* BLURB:
+	* README:
+	* latin-unity.texi:
+	Describe Latin 7 support.
+
+	* latin-unity.el (latin-unity-hack-cookies-prop-line): Don't do
+	anything, not even warn about format, if a correctly formatted
+	coding cookie isn't found.
+
+2002-06-30  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-recode-region):
+	(latin-unity-recode-coding-region):
+	(latin-unity-read-coding-system-or-charset):
+	Fix interactive spec brain-damage.
+	(latin-unity-test): Add Latin-1 test, interactive section, use
+	`format'.
+
+2002-06-25  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-hack-coding-cookie):
+	Convert	buffer-file-coding-system to string before comparison, and
+	strip eol type.
+	(latin-unity-hack-cookies-enabled-p):
+	(latin-unity-hack-cookies-last-page):
+	Renamed from "hack-coding".
+	(latin-unity-hack-cookies-prop-line): Renamed. Skip past semicolon.
+	(latin-unity-sanity-check): Use new names.  Reset cookie count.
+	(latin-unity-coding-cookies-found):
+	(latin-unity-may-set-coding-flag): 
+	(latin-unity-like-to-live-dangerously): 
+	(latin-unity-hack-cookies-enabled-p):
+	Moved up in file to avoid warnings and for style.
+
+2002-06-19  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el (latin-unity-maybe-set-coding-system): Fix typo
+	in comment.  Improve docstring.  New arg; if args same, don't set
+	default.
+	(latin-unity-sanity-check): New flet base-name.  Use new arg.
+	Warp coding-systems to name space.
+	(latin-unity-maybe-remap): Warp coding-system to name space.
+
+2002-05-21  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* README: Mention coding cookie validation.
+
+	* latin-unity.el (latin-unity-hack-coding-last-page):
+	(latin-unity-hack-coding-prop-line):
+	New functions to validate coding cookies.
+	(latin-unity-sanity-check): Use them.
+	(latin-unity-hack-coding-enabled-p): New variable to control usage.
+	(latin-unity-hack-coding-cookie): New helper function.
+
+2002-05-16  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* README: Describe automatic adjustment of buffer-file-coding-system.
+
+	* latin-unity.el (latin-unity-may-set-coding-flag): New variable.
+	(latin-unity-maybe-set-coding-system): New function using it.
+	(latin-unity-sanity-check): Use it.
+
 2002-10-15  Ville Skyttä  <scop@xemacs.org>
 
 	* Makefile (srckit): Remove.

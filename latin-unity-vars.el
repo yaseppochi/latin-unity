@@ -1,4 +1,4 @@
-;;; latin-unity-vars.el --- Common variables and objects of latin-unity -*- coding: iso-2022-7 -*-
+;;; latin-unity-vars.el --- Common variables and objects of latin-unity
 
 ;; Copyright (C) 2002 Free Software Foundation, Inc
 
@@ -37,8 +37,24 @@
 
 (provide 'latin-unity-vars)
 
-;; Latin-9 charset, ISO 8859/15 coding system, Latin-9 environment
+;; If you consider any of these bloat, you can comment them out, but
+;; YOU MUST REGENERATE latin-unity-tables.el.  The table and the code
+;; depend on arbitrarily chosen indexes for the charsets.
+
+;; Latin-7 charset, ISO 8859/13 coding system, Latin-7 environment (Baltic Rim)
+;; Few people will need this, but it avoids screwups.
+(require 'latin-unity-latin7)
+
+;; Latin-8 charset, ISO 8859/14 coding system, Latin-8 environment (Celtic)
+;; Few people will need this, but it avoids screwups.
+(require 'latin-unity-latin8)
+
+;; Latin-9 charset, ISO 8859/15 coding system, Latin-9 environment (Euro)
 (require 'latin-unity-latin9)
+
+;; Latin-10 charset, ISO 8859/16 coding system, Latin-10 environment (Romanian)
+;; Few people will need this, but it avoids screwups.
+(require 'latin-unity-latin10)
 
 ;;; User customization is in latin-unity.el
 
@@ -91,7 +107,7 @@ Cf. `latin-unity-character-sets'.")
 	    (when (find-charset x)
 	      (setq lucs (cons x lucs))))
 	  '(latin-iso8859-1 latin-iso8859-2 latin-iso8859-3 latin-iso8859-4
-	    latin-iso8859-9 iso-8859-10 iso-8859-13 latin-iso8859-14
+	    latin-iso8859-9 latin-iso8859-10 latin-iso8859-13 latin-iso8859-14
 	    latin-iso8859-15 latin-iso8859-16
 	    ;; above are all GR sets, below are normally GL
 	    ascii latin-jisx0201))
@@ -159,4 +175,4 @@ with the equivalence table.")
 		  index (1+ index)))
 	  latin-unity-character-sets))
 
-;;; end of latin-unity-vars.el
+;;; end of latin-unity-vars.
