@@ -996,7 +996,7 @@ text and do not cooperate well with other coding systems.
 The following coding systems are based on ISO 2022.  Though none of them
 provides any Latin characters beyond ASCII, XEmacs Mule allows (and up
 to 21.4 defaults to) use of ISO 2022 control sequences to designate
-other character sets for inclusion the the text.
+other character sets for inclusion the text.
 
 @samp{iso-8859-5} @samp{iso-8859-7} @samp{iso-8859-8}
 @samp{ctext-hebrew}

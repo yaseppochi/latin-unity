@@ -1,3 +1,8 @@
+2002-03-12  Adrian Aichner  <adrian@xemacs.org>
+
+	* latin-unity.texi: Fix typos found by my own
+	grep-for-likely-typo.pl.
+	
 2002-03-15  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity-latin9.el: Bind the EuroSign keysym.
