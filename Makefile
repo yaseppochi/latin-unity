@@ -48,35 +48,20 @@ EXTRA_SOURCES = latin-unity-tests.el
 PRELOADS=-l cl-macs -l latin-unity-latin7.el -l latin-unity-latin9.el \
          -l latin-unity-vars.el
 
-TEXI_FILES = $(PACKAGE).texi
-INFO_FILES = $(PACKAGE).info
+STANDARD_DOCS = t
 
 DATA_1_FILES = ChangeLog Makefile README BLURB
 DATA_1_DEST = $(PACKAGE)
 
+GENERATED_ELCS += latin-unity-tables.elc
+
 include ../../XEmacs.rules
-
-GENERATED += $(AUTOLOAD_PATH)/custom-load.elc latin-unity-tables.elc
-
-ifeq ($(BUILD_WITHOUT_MULE),)
-
-compile:: $(GENERATED) $(ELCS) $(INFO_FILES)
 
 # Experimental rule to build latin-unity-tables.el.
 latin-unity-tables.el: latin-unity-vars.elc latin-unity-utils.elc
 	$(BOOT_XEMACS) -l latin-unity-utils -f latin-unity-dump-tables
 	@echo "*** You may see a few warnings about ISO 8859/3. ***"
 	@echo "*** This is OK; it doesn't use all code points.  ***"
-
-clean:: tableclean
-
-tableclean:
-	rm -f latin-unity-tables.elc
-
-distclean:: tabledistclean
-
-tabledistclean:
-	rm -f latin-unity-tables.el
 
 # We'd like this to be utf-8, but then pre-21.5.6 would have to depend on
 # Mule-UCS
@@ -90,14 +75,3 @@ check: all
 #		-l latin-unity-vars -l latin-unity \
 #		-f latin-unity-install -f latin-unity-test \
 #		-eval "(write-file \"./latintest\" nil 'iso-2022-7)"
-
-binkit: binkit-common
-
-else
-compile::
-	@echo Latin-Unity requires XEmacs/Mule to build
-
-# Noop
-binkit:
-
-endif
