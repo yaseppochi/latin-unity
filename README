@@ -1,4 +1,7 @@
-latin-unity
+***** latin-unity
+
+This is the beta test version of the latin-unity package for Mule
+XEmacs.
 
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
@@ -10,14 +13,101 @@ functions which determine the list of coding systems which can encode
 all of the characters in the buffer, and translate to a common coding
 system if possible.
 
-latin-unity.el is the main library, providing the detection and translation
-functionality, including a hook function to hang on `write-region-pre-hook'.
+***** Features:
 
-latin-unity-tables.el contains the table of feasible character sets and
-equivalent Mule characters from other character sets for the various Mule
-representations of each character.
+  o ISO 8859/15 for XEmacs 21.4 (lightly tested) and 21.1 (untested).
+    To get 'iso-8859-15 preferred to 'iso-8859-1 in autodetection, use
+    (set-coding-category-system 'iso-8-1 'iso-8859-15).  (untested)
 
-latin-unity-utils.el contains utilities for creating the equivalence table.
+    If all you want is ISO 8859/15 support, you can either copy the
+    ISO 8859/15 setup to another file, or `(require 'latin-unity-vars).
+
+  o If a buffer contains only ASCII and ISO-8859 Latin characters, the
+    buffer can be "unified", that is treated so that all characters are
+    translated to one charset that includes them all.  If the current
+    buffer coding system is not sufficient, the package will suggest
+    alternatives.  It prefers ISO-8859 encodings, but also suggests
+    UTF-8 (if available; 21.4+ feature), ISO 2022 7-bit, or X Compound
+    Text if no ISO 8859 coding system is comprehensive enough.
+
+    It allows the user to use other coding systems, and the list of
+    suggested coding systems is Customizable.
+
+    This probably also is useful out of the box if the buffer contains
+    non-Latin characters in addition to a mixture of Latin
+    characters.  For example, I believe it would reduce a buffer
+    originally ISO-2022-JP (including Latin-1 characters) to ISO
+    8859/1 if all the Japanese were deleted.  (untested)
+
+  o Hooks into `write-region' to prevent (or at least drastically
+    reduce the probability of) introduction of ISO 2022 escape
+    sequences for "foreign" character sets.  This hook is not set by
+    default in this package yet; try M-x latin-unity-test RET for a
+    short introduction and some useful C-x C-e'able exprs.
+
+    This may permit us to turn off support for those sequences
+    entirely in our ISO 8859 coding-systems.
+
+  o Depends only on mule-base in operation.  Table generation depends
+    on Unicode support such as Mule-UCS or Ben's ben-mule-21-5
+    workspace, and the package build currently requires Mule-UCS.
+
+Current misfeatures:
+
+  o If the buffer is changed by the hook, apparently write-region
+    starts over again from the top.  The buffer is checked again, and
+    you are asked to choose the coding system again.  If you choose
+    the same one, then the save goes through.
+
+    Note that if you choose a non-default coding system the first time
+    through, you will not get your choice as a default the second
+    time.  You'll get the same default as the first time.
+
+  o Probable performance hit on large (> 20kB) buffers with many
+    (>20%) non-ASCII characters.  Possible otimizations are given near
+    `latin-unity-region-feasible-representations' in latin-unity.el.
+
+  o Custom-loads aren't built for the package.  You'll need to `(require
+    'latin-unity)' to get Customize's information loaded.
+
+  o Package depends on Mule-UCS.
+
+Planned:
+
+  o Fix the misfeatures.
+
+  o GNU Emacs support.
+
+  o Fix JIS Roman (as an alternative to ASCII) support.
+
+  o More UI features (like list of unrepresentable charsets, and
+    perhaps highlighting them in buffer)
+
+  o Integration to development tree (but probably not 21.4, this
+    package should be good enough).
+
+  o Eliminate all need for Mule-UCS.
+
+Not planned:
+
+  o Extension to Han-unity.  This needs to be treated more carefully.
+
+***** Availability:
+
+These URLs will change upon public release.
+
+    anonymous CVS:
+    Get the XEmacs/packages/mule-packages/latin-unity module.  You'll
+    need to fix up the lists of packages in the package-compile.el
+    utility (and possible in mule-package/Makefile) to build a
+    package, but for general use, just byte-compiling latin-unity and
+    latin-unity-tables, and putting them on your path, should be fine.
+
+    WWW:
+    http://turnbull.sk.tsukuba.ac.jp/Tools/XEmacs/latin-unity-0.90-pkg.tar.gz
+
+
+***** Basic usage:
 
 To set up the package, simply put
 
@@ -25,4 +115,20 @@ To set up the package, simply put
 
 in your init file.
 
-Note: this package is planned for addition to the mainline in some form.
+
+***** Implementation:
+
+latin-unity.el is the main library, providing the detection and translation
+functionality, including a hook function to hang on `write-region-pre-hook'.
+
+latin-unity-vars.el contains the definition of ISO 8859/15 and variables
+common to several modules.
+
+latin-unity-tables.el contains the table of feasible character sets and
+equivalent Mule characters from other character sets for the various Mule
+representations of each character.  Automatically generated.
+
+latin-unity-utils.el contains utilities for creating the equivalence
+table.
+
+
