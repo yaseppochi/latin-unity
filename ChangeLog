@@ -1,3 +1,8 @@
+2003-11-09  Steve Youngs  <sryoungs@bigpond.net.au>
+
+	* Makefile (EXTRA_SOURCES): Add `latin-unity-tables.el'.
+	(GENERATED_ELCS): Removed, obsolete.
+
 2003-10-31  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.08 released.

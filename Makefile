@@ -50,7 +50,7 @@ ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-latin8.elc latin-unity-latin10.elc \
        latin-unity-utils.elc
 
-EXTRA_SOURCES = latin-unity-tests.el
+EXTRA_SOURCES = latin-unity-tests.el latin-unity-tables.el
 
 # for defvars and creation of ISO 8859/13 and ISO 8859/15 charsets and
 # coding system
@@ -62,15 +62,16 @@ STANDARD_DOCS = t
 DATA_1_FILES = ChangeLog Makefile README BLURB
 DATA_1_DEST = $(PACKAGE)
 
-GENERATED_ELCS += latin-unity-tables.elc
+# This should be "GENERATED_LISP" anyhow.
+# GENERATED_ELCS += latin-unity-tables.elc
 
 include ../../XEmacs.rules
 
 # Experimental rule to build latin-unity-tables.el.
-latin-unity-tables.el: latin-unity-vars.elc latin-unity-utils.elc
-	$(BOOT_XEMACS) -l latin-unity-utils -f latin-unity-dump-tables
-	@echo "*** You may see a few warnings about ISO 8859/3. ***"
-	@echo "*** This is OK; it doesn't use all code points.  ***"
+#latin-unity-tables.el: latin-unity-vars.elc latin-unity-utils.elc
+#	$(BOOT_XEMACS) -l latin-unity-utils -f latin-unity-dump-tables
+#	@echo "*** You may see a few warnings about ISO 8859/3. ***"
+#	@echo "*** This is OK; it doesn't use all code points.  ***"
 
 # We'd like this to be utf-8, but then pre-21.5.6 would have to depend on
 # Mule-UCS
