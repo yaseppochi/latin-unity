@@ -33,7 +33,8 @@
 ;; determine the list of coding systems which can encode all of the
 ;; characters in the buffer.
 
-;; Provides the 'iso-8859-15 coding system if not yet defined.
+;; Provides the 'iso-8859-15 coding system if yet undefined.
+;; #### Get the final byte for 'iso-8859-15 and do it too.
 
 ;;; Code:
 
@@ -74,16 +75,45 @@ recommending a coding system.
   "List of coding systems such that the buffer is not checked for Latin unity.
 
 Usually this means that `buffer-file-coding-system' is a member of this list.
-#### not clear this API is right."
+#### not clear this API is right, see comment in `latin-unity.el'."
   :type '(list symbol)
   :group 'latin-unity)
 
 (defcustom latin-unity-approved-coding-system-list nil
   "List of coding systems forcing a save of the buffer even if Latin unity
 is not satisfied.
-#### not clear this API is right."
+#### not clear this API is right, see comment in `latin-unity.el'."
   :type '(list symbol)
   :group 'latin-unity)
+
+(defcustom latin-unity-iso-8859-1-aliases '(iso-8859-1)
+  "List of coding systems to be treated as aliases of ISO 8859/1."
+  :type '(list symbol)
+  :group 'latin-unity)
+
+
+;;; User interface
+
+;; Install/uninstall
+
+;;;###autoload
+(defun latin-unity-install ()
+  "Set up hooks and initialize variables for latin-unity.
+
+This function is idempotent.  It will reinitialize any hooks or variables
+that are not in initial state."
+
+  (interactive)
+
+  (add-hook 'write-region-pre-hook 'latin-unity-sanity-check))
+
+;;;###autoload
+(defun latin-unity-uninstall ()
+  "Clean up hooks and void variables used by latin-unity."
+
+  (interactive)
+
+  (remove-hook 'write-region-pre-hook 'latin-unity-sanity-check))
 
 
 ;;; Implementation
@@ -102,14 +132,14 @@ Accessor for `latin-unity-equivalences'."
 	(get charset 'latin-unity-index)))
 
 ;;;###autoload
-(defun latin-unity-buffer-feasible-representations ()
-  "Apply latin-unity-region-feasible-representations to the current buffer."
+(defun latin-unity-buffer-representations-feasible ()
+  "Apply latin-unity-region-representations-feasible to the current buffer."
   (interactive)
-  (latin-unity-region-feasible-representations (point-min)
+  (latin-unity-region-representations-feasible (point-min)
 					       (point-max)
 					       (current-buffer)))
 
-;; latin-unity-region-feasible-representations
+;; latin-unity-region-representations-feasible
 ;;
 ;; The basic algorithm is to map over the region, compute the set of
 ;; charsets that can represent each character (the "feasible charset"),
@@ -130,7 +160,7 @@ Accessor for `latin-unity-equivalences'."
 ;; for Latin character sets there are only 29 classes.
 
 ;;;###autoload
-(defun latin-unity-region-feasible-representations (begin end &optional buf)
+(defun latin-unity-region-representations-feasible (begin end &optional buf)
   "Return character sets that can represent the text from BEGIN to END in BUF.
 
 BUF defaults to the current buffer.  Called interactively, will be
@@ -142,15 +172,16 @@ buffer, and the cdr is the list of character sets that can
 individually represent all of the ASCII portion."
 
   (interactive "r")
-  ;; #### should collect "found" sets too, for listing in help buffer
-  ;; this probably requires a second pass....
   (let* ((asciisets (logior (get 'ascii 'latin-unity-flag-bit)
 			    (get 'latin-jisx0201 'latin-unity-flag-bit)))
 	 (latinsets (logand (lognot asciisets) latin-unity-all-flags)))
     (save-excursion
       (set-buffer (or buf (current-buffer)))
       (goto-char begin)
-      ;; The characters skipped here can't change asciisets
+      ;; The characters skipped here can't change asciisets.
+      ;; Note that to generalize this we would need to have a notion of
+      ;; classes of characters which do not change the representability.
+      ;; One thing we can do is to add the character itself.
       (skip-chars-forward latin-unity-ascii-and-jis-roman)
       (while (< (point) end)
 	(let* ((ch (char-after))
@@ -169,18 +200,41 @@ individually represent all of the ASCII portion."
 	(skip-chars-forward latin-unity-ascii-and-jis-roman)))
     (cons latinsets asciisets)))
 
-(defvar latin-unity-iso-8859-1-aliases '(iso-8859-1)
-  "List of coding systems to be treated as aliases of ISO 8859/1.")
 
-;; I see nothing useful to be done with APPEND.
+;; #### possibly it would be faster to do this in the previous function
+;; however, this is not obvious because this function is quite fast (the
+;; region mapping is all in C), and therefore we can short-circuit the
+;; slow Lisp function above
+(defun latin-unity-region-representations-present (begin end &optional buffer)
+  "Return a cons of two bit vectors giving character sets in region.
+
+The car indicates which Latin characters sets were found, the cdr the ASCII
+character sets.  BUFFER defaults to the current buffer."
+
+  (let ((lsets 0)
+	(asets 0))
+    (mapc (lambda (cs)
+	    (cond ((memq cs '(ascii latin-jisx0201))
+		   (setq asets (logior (get cs 'latin-unity-flag-bit) asets)))
+		  ((get cs 'latin-unity-bit-flag)
+		   (setq lsets (logior (get cs 'latin-unity-flag-bit) lsets)))))
+	  (charsets-in-region begin end buffer))
+    (cons lsets asets)))
+
+
+;; #### I see nothing useful to be done with APPEND.
 ;; FILENAME, VISIT, or LOCKNAME could be used to default the coding system,
 ;; but this would conflict with the semantics of `write-region'.
+;; #### The efficiency of this function can clearly be improved.
 
 ;;;###autoload
-(defun latin-unity-sanity-check (start end filename append visit lockname)
-  "Check if `buffer-file-coding-system' can represent the region START to END.
+(defun latin-unity-sanity-check (begin end filename append visit lockname
+				 &optional coding-system)
+  "Check if CODING-SYSTEM can represent all characters between BEGIN and END.
 
-FILENAME, APPEND, VISIT, and LOCKNAME are ignored.
+For compatibility with old broken versions of `write-region', CODING-SYSTEM
+defaults to `buffer-file-coding-system'.  FILENAME, APPEND, VISIT, and
+LOCKNAME are ignored.
 
 Return nil if buffer-file-coding-system is not (ISO-2022-compatible) Latin.
 If buffer-file-coding-system is safe for the charsets actually present in
@@ -191,73 +245,95 @@ This function does _not_ do the safe thing when buffer-file-coding-system is
 nil (aka no-conversion).  It considers that \"non-Latin\", and passes it on
 to the Mule detection mechanism.
 
-This function is intended for use as a `write-region-pre-hook'."
+This function is intended for use as a `write-region-pre-hook'.  It does
+nothing except return CODING-SYSTEM if `write-region' handlers are inhibited."
 
-  ;; #### This function is too complicated.  Break it up.
+  (let ((codesys (or coding-system buffer-file-coding-system)))
+    (cond
+     ;; don't do anything if we're in a `write-region' handler
+     ((eq inhibit-file-name-operation 'write-region) codesys)
+     ((null codesys) nil)
+     ((memq codesys latin-unity-ignored-coding-system-list) nil)
+     ((or (and (eq (coding-system-type codesys) 'iso2022)
+	       (coding-system-property codesys 'charset-g1))
+	  (memq codesys latin-unity-iso-8859-1-aliases))
+      ;; c[al]?sets == compatible character sets
+      ;; p[al]?sets == present in buffer character sets
+      ;; a == ascii, l == latin
+      (let* ((csets (latin-unity-region-representations-feasible begin end))
+	     (casets (cdr csets))
+	     (clsets (car csets))
+	     ;; we also need to check for what's in the buffer
+	     ;; #### it will save a lot of time in typical case if we
+	     ;; do this check first and return immediately if feasible
+	     (psets (latin-unity-region-representations-present begin end))
+	     (pasets (cdr psets))
+	     (plsets (car psets))
+	     (bfcsgr (or (car (rassq codesys latin-unity-cset-codesys-alist))
+			 (coding-system-property codesys 'charset-g1)))
+	     recommended target-cs)
+	(when latin-unity-debug 
+	  (cond ((null csets) (error "no feasible reps vectors?!?"))
+		((null casets) (error "no ascii reps vector?!?"))
+		((null clsets) (error "no latin reps vector?!?"))
+		((null psets) (error "no reps present vectors?!?"))
+		((null pasets) (error "no ascii reps present vector?!?"))
+		((null plsets) (error "no latin reps present vector?!?"))
+		((null (get 'ascii 'latin-unity-flag-bit))
+		 (error "no flag bit for ascii?!?"))
+		((null (get bfcsgr 'latin-unity-flag-bit))
+		 (error (format "no flag bit for %s?" bfcsgr))))
+	  (message "%s" csets)
+	  (sit-for 1))
+	;; we represent everything in the buffer without remapping
+	(if (and (= (logxor (get 'ascii 'latin-unity-flag-bit) pasets) 0)
+		 (= (logxor (get bfcsgr 'latin-unity-flag-bit) plsets) 0))
+	    codesys
+	  ;; #### break out this help code into a separate function.
+	  ;; don't forget to leave the computation of the recommend cs!
+	  ;; #### this let is bletch, figure out how to handle the help
+	  ;; buffer elegantly
+	  (let ((obuffer (current-buffer)))
+	    (pop-to-buffer (get-buffer-create latin-unity-help-buffer) t)
+	    ;; #### RFE: It also would be nice if the offending characters were
+	    ;; marked in the buffer being checked.
+	    (erase-buffer)
+	    (insert (format "\
+This buffer's default coding system (%s)
+cannot appropriately encode some of the characters present in the buffer."
+			    codesys))
+	    (when latin-unity-debug
+	      (insert "  Character sets found are:\n\n   ")
+	      (mapc (lambda (cs) (insert (format " %s" cs)))
+		    ;; #### Blarg, we've already done this
+		    (charsets-in-region begin end obuffer)))
+	    (insert "
 
-  (let ((codesys buffer-file-coding-system))
-    (cond ((null codesys) nil)
-	  ((memq codesys latin-unity-ignored-coding-system-list) nil)
-	  ((or (and (eq (coding-system-type codesys) 'iso2022)
-		    (coding-system-property codesys 'charset-g1))
-	       (memq codesys latin-unity-iso-8859-1-aliases))
-	   (let* ((csets (latin-unity-region-feasible-representations start
-								      end))
-		  (asets (cdr csets))
-		  (lsets (car csets))
-		  (bfcsgr (or (car (rassq codesys
-					  latin-unity-cset-codesys-alist))
-			      (coding-system-property codesys
-						      'charset-g1)))
-		  recommended target-cs)
-	     (when latin-unity-debug 
-	       (cond ((null csets) (error "no feasible reps vectors?!?"))
-		     ((null asets) (error "no ascii reps vector?!?"))
-		     ((null lsets) (error "no latin reps vector?!?"))
-		     ((null (get 'ascii 'latin-unity-flag-bit))
-		      (error "no flag bit for ascii?!?"))
-		     ((null (get bfcsgr 'latin-unity-flag-bit))
-		      (error (format "no flag bit for %s?" bfcsgr))))
-	       (message "%s" csets)
-	       (sit-for 1))
-	     (if (and (/= (logand (get 'ascii 'latin-unity-flag-bit) asets) 0)
-		      (/= (logand (get bfcsgr 'latin-unity-flag-bit) lsets) 0))
-		 codesys
-	       (pop-to-buffer (get-buffer-create latin-unity-help-buffer) t)
-	       ;; RFE: We'd like this to list the infeasible character sets.
-	       ;; RFE: It also would be nice if the offending characters were
-	       ;; marked in the buffer being checked.
-	       (erase-buffer)
-	       (insert (format "\
-The default coding system for this buffer (%s) cannot
-appropriately encode some of the characters which are present in the buffer.
 Please pick a coding system.  The following are recommended because they can
 encode any character in the buffer:
 
-   "
-			       codesys))
-	       (mapc
-		(lambda (cs)
-		  (if (/= (logand (get cs 'latin-unity-flag-bit) lsets) 0)
-		      (let ((sys (cdr (assq cs
-					    latin-unity-cset-codesys-alist))))
-			(unless recommended
-			  (setq target-cs cs recommended sys))
-			(insert (format " %s" sys)))))
-		latin-unity-character-sets)
-	       ;; universal coding systems
-	       (mapc (lambda (cs)
-		       (when (find-coding-system cs)
-			 (unless recommended (setq recommended cs))
-			 (insert (format " %s" cs))))
-		     latin-unity-approved-ucs-list)
-	       (insert "
+   ")
+	    (mapc
+	     (lambda (cs)
+	       (if (/= (logand (get cs 'latin-unity-flag-bit) clsets) 0)
+		   (let ((sys (cdr (assq cs latin-unity-cset-codesys-alist))))
+		     (unless recommended
+		       (setq target-cs cs recommended sys))
+		     (insert (format " %s" sys)))))
+	     latin-unity-character-sets)
+	    ;; universal coding systems
+	    (mapc (lambda (cs)
+		    (when (find-coding-system cs)
+		      (unless recommended (setq recommended cs))
+		      (insert (format " %s" cs))))
+		  latin-unity-approved-ucs-list)
+	    (insert "
 
 Note that if you select a coding system that can not encode some characters
 in your buffer, those characters will be changed to an arbitrary replacement
 character, by default `~', on output.
 
-More information on coding systems:
+Page down for more information on coding systems:
 
 utf-8, iso-2022-7, and ctext support all characters safely.  iso-2022-7 and
 ctext are ISO 2022 conforming coding systems for 7-bit and 8-bit environments
@@ -270,44 +346,112 @@ However, characters outside of the normal range for the coding system require
 use of ISO 2022 extension techniques and is likely to be unsupported by other
 software, including software that supports iso-2022-7 or ctext.
 
-For a list of coding systems, abort this operations and invoke
-`list-coding-systems.")
+For a list of coding systems, abort now and invoke `list-coding-systems'.")
+	    (goto-char (point-min))
 
-	       (let ((val (read-coding-system (format "Coding system [%s]: "
-						      recommended)
-					      recommended)))
-		 (delete-window)
-		 ;; compute return
-		 (cond
-		  ;; pre-approved coding systems
-		  ((or (memq val latin-unity-approved-ucs-list)
-		       (memq val latin-unity-approved-coding-system-list))
-		   val)
-		  ;; ISO 2022 (including ISO 8859) compatible systems
-		  ;; maybe we should check for G2 and G3 sets
-		  ((and (eq (coding-system-type val) 'iso2022)
-			(setq target-cs
-			      (or (coding-system-property val 'charset-g1)
-				  target-cs))
-			(if (latin-unity-remap-region start end target-cs val)
-			    val
-			  (error
-			   (format (concat "Couldn't remap characters to"
-					   " charset %s for coding system %s"
-					   target-cs val))))))
-		  ;; other coding systems -- eg Windows 125x, KOI8?
-		  ;; unimplemented
-		  (t nil))))))
-	  (t nil))))
+	    (let ((val (read-coding-system (format "Coding system [%s]: "
+						   recommended)
+					   recommended)))
+	      (delete-window)
+	      (set-buffer obuffer)
+	      ;; compute return
+	      (cond
+	       ;; pre-approved coding systems
+	       ((or (memq val latin-unity-approved-ucs-list)
+		    (memq val latin-unity-approved-coding-system-list))
+		val)
+	       ;; ISO 2022 (including ISO 8859) compatible systems
+	       ;; maybe we should check for G2 and G3 sets
+	       ((and (eq (coding-system-type val) 'iso2022)
+		     (setq target-cs
+			   (or (coding-system-property val 'charset-g1)
+			       target-cs))
+		     (if (latin-unity-remap-region begin end target-cs val)
+			 val
+		       (error
+			(format (concat "Couldn't remap characters to"
+					" charset %s for coding system %s"
+					target-cs val))))))
+	       ;; other coding systems -- eg Windows 125x, KOI8?
+	       ;; #### unimplemented
+	       (t nil)))))))
+      (t nil))))
 
+
+;;;###autoload
+(defun latin-unity-recode-region (begin end wrong-cs right-cs)
+  "Recode characters between BEGIN and END from WRONG-CS to RIGHT-CS.
+
+When called interactively, BEGIN and END are set to the beginning and
+end, respectively, of the active region, and XEmacs prompts for WRONG-CS
+and RIGHT-CS.
+
+WRONG-CS and RIGHT-CS are character sets.  Characters retain the same code
+point but the character set is changed.  Only characters from WRONG-CS are
+changed to RIGHT-CS.  The identity of the character may change.  Note that
+this could be dangerous, if characters whose identities you do not want
+changed are included in the region.  This function cannot guess which
+characters you want changed, and which should be left alone.
+
+Another way to accomplish this, but using coding systems rather than character
+sets to specify the desired recoding, is `latin-unity-recode-coding-region'.
+That function may be faster but is somewhat more dangerous, because it may
+recode more than one character set.
+
+To change from one Mule representation to another without changing identity
+of any characters, use `latin-unity-remap-region'."
+
+  ;; #### Implement constraint and completion here
+  (interactive "*r\nSCurrent character set: \nSDesired character set: ")
+
+  (save-excursion
+    (goto-char begin)
+    (while (< (point) end)
+      (let ((split (split-char (char-after))))
+	(if (eq (car split) wrong-cs)
+	    ;; this order preserves marker and extent endpoints
+	    (progn
+	      (insert (apply #'make-char (cons right-cs (cdr split))))
+	      (delete-char))
+	  (forward-char))))))
+
+
+;;;###autoload
+(defun latin-unity-recode-coding-region (begin end wrong-cs right-cs)
+  "Recode text between BEGIN and END from WRONG-CS to RIGHT-CS.
+
+When called interactively, BEGIN and END are set to the beginning and
+end, respectively, of the active region, and XEmacs prompts for WRONG-CS
+and RIGHT-CS.
+
+WRONG-CS and RIGHT-CS are coding systems.  Characters retain the same code
+point but the character set is changed.  The identity of characters may change.
+This is an inherently dangerous function; multilingual text may be recoded in
+unexpected ways.  #### It's also dangerous because the coding systems are not
+sanity-checked in the current implementation.
+
+Another, safer, way to accomplish this, using character sets rather than coding
+systems to specify the desired recoding, is to use `latin-unity-recode-region.
+
+To change from one Mule representation to another without changing identity
+of any characters, use `latin-unity-remap-region'."
+
+  (interactive "*r\nzCurrent coding system: \nzDesired coding system: ")
+  (encode-coding-region begin end wrong-cs)
+  (decode-coding-region begin end right-cs))
+
+
+;;;###autoload
 (defun latin-unity-remap-region (begin end character-set
 				 ;; #### maybe this should be a keyword arg?
 				 &optional coding-system)
   "Remap characters between BEGIN and END to equivalents in CHARACTER-SET.
 Optional argument CODING-SYSTEM may be a coding system name (a symbol) or
-nil.
+nil.  Characters with no equivalent are left as-is.
 
-Characters with no equivalent are left as-is.
+When called interactively, BEGIN and END are set to the beginning and
+end, respectively, of the active region, and XEmacs prompts for
+CHARACTER-SET.
 
 Return CODING-SYSTEM if CODING-SYSTEM can encode all characters in the
 region, t if CODING-SYSTEM is nil and the coding system with G0 = 'ascii
@@ -317,14 +461,19 @@ the specified region.  (This behavior is useful for multipart MIME encoding
 and the like.)
 
 Interactively BEGIN and END are set to the current region and the function
-prompts for CHARACTER-SET.  CODING-SYSTEM is always set to nil, as it has
-no useful function interactively.
+prompts for CHARACTER-SET.  There is no way to specify CODING-SYSTEM, as it
+has no useful function interactively.
 
 Note:  by default this function is quite fascist about universal coding
 systems.  It only admits utf-8, iso-2022-7, and ctext.  Customize
-`latin-unity-approved-ucs-list' to change this."
+`latin-unity-approved-ucs-list' to change this.
 
-  (interactive "rSCharacter set: ")
+This function remaps characters that are artificially distinguished by Mule
+internal code.  It may change the code point as well as the character set.
+To recode characters that were decoded in the wrong coding system, use
+`latin-unity-recode-region'."
+
+  (interactive "*r\nSCharacter set: ")
 
   (if (not (charsetp (find-charset character-set)))
       ;; #### Should be more user-friendly here
@@ -335,9 +484,11 @@ systems.  It only admits utf-8, iso-2022-7, and ctext.  Customize
       (narrow-to-region begin end)
       (goto-char (point-min))
       (while (not (eobp))
-	(let ((repch (latin-unity-equivalent-character (char-after)
-						       character-set)))
-	  (if (not repch)
+	;; #### RFE: optimize using skip-chars-forward
+	(let* ((ch (char-after))
+	       (repch (latin-unity-equivalent-character ch character-set)))
+	  (if (or (not repch)
+		  (= repch ch))
 	      (forward-char 1)
 	    (insert repch)
 	    (delete-char 1))))))
@@ -357,7 +508,7 @@ buffer-file-coding-system to some value, make the buffer dirty (eg
 with RET BackSpace), and save."
 
   (interactive)
-  (switch-to-buffer (get-buffer-create "latin-unity-test"))
+  (switch-to-buffer (get-buffer-create "latin-unity test"))
   (erase-buffer)
   (insert "From here ...\n")
   (insert "Latin-1: f")
@@ -375,16 +526,20 @@ By deleting various portions of the buffer and saving, or by setq'ing
 buffer-file-coding-system and saving, you can see how the thing works.
 After compiling and loading the file, do (by hand)
 
-(add-hook 'write-region-pre-hook 'latin-unity-sanity-check)
+M-: (latin-unity-install) RET.
 
-To see a little more of what it's doing (you need to read the code to
-interpret, though) and to get some sledgehammer error checks
+To see a trace of what it's doing (you need to read the code to interpret),
+to get more information about character sets in the region, and to enable
+some sledgehammer error checks
 
-(setq latin-unity-debug t)
+M-: (setq latin-unity-debug t) RET
 
 To disable the hook, do
 
-(remove-hook 'write-region-pre-hook 'latin-unity-sanity-check)
+M-: (latin-unity-uninstall) RET.
+
+Note:  the *install functions are interactive, I wrote them as above so you
+can C-x C-e them in this buffer.
 "))
 
 ;;; end of latin-unity.el

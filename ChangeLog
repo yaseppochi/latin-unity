@@ -1,3 +1,43 @@
+2002-02-25  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* README: Note out of date status.
+
+	* Makefile (Copyright notice): Add.
+	(AUTHOR_VERSION): Bump to 0.99.
+	(MAINTAINER): Fix typo.
+	(TEXI_FILES, INFO_FILES, MANUAL): New manual.
+	(DATA_1_FILES, DATA_1_DEST): Add ChangeLog, Makefile, doc sources.
+	(all): Add dependency on $(INFO_FILES).
+
+	* latin-unity.texi: New file.
+
+	* latin-unity-utils.el (Populate the equivalence table): Fix comment.
+
+	* latin-unity.el: Flag RFEs etc with ####.
+	(latin-unity-remap-region): Fix interactive form.  Improve docstring.
+	(latin-unity-iso-8859-1-aliases): Make it a defcustom.
+	(latin-unity-region-representations-present): New function.
+	(latin-unity-sanity-check): Use it, fixing bug where if the buffer
+	coding system happened to be feasible, we failed to convert other
+	character sets at all.
+	Change arg name from start to begin.
+	Print charset list when debug is non-nil.
+	(latin-unity-install): New command.
+	(latin-unity-uninstall): New command.
+	(latin-unity-test): Document install commands and new debug output.
+	(latin-unity-recode-region): New command.
+	(latin-unity-recode-coding-region): New command.
+
+2002-01-27  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* Makefile (AUTHOR_VERSION): Bump to 0.91.
+
+	* latin-unity.el (latin-unity-remap-region): Short-circuit
+	identity substitutions.  Improve docstring.
+	(latin-unity-sanity-check): Short-circuit if write-region handlers
+	are inhibited.  Add coding-system argument (optional for backward
+	compatibility).  Update docstring.  Improve comments.  Reformat.
+
 2002-01-26  Steve Youngs  <youngs@xemacs.org>
 
 	* Makefile (GENERATED): Put it after 'include ../../XEmacs.rules'

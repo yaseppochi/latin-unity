@@ -198,7 +198,7 @@
        (unitable (make-vector (1+ #x20AC) nil)))
 
   ;; 
-  ;; ASCII is spatial, Mule treats C0 and DEL as ASCII, but
+  ;; ASCII is spatial, Mule treats C0, SPC, and DEL as ASCII, but
   ;; (= (charset-property 'ascii 'chars) 94) :-(
   (loop for i from #x00 to #x7F do
     (let* ((ch (make-char 'ascii i))	; multibyte dirty

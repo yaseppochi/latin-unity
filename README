@@ -3,6 +3,8 @@
 This is the beta test version of the latin-unity package for Mule
 XEmacs.
 
+This file has not been updated; the new Texinfo manual is more reliable.
+
 Mule bogusly considers the various ISO-8859 extended character sets as
 disjoint, when ISO 8859 itself clearly considers them to be subsets of
 a larger character set.  For example, all of the Latin character sets
