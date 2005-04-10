@@ -52,13 +52,13 @@
 (defvar latin-unity-utils-found-unicode-support t)
 
 (condition-case nil
-    (if (fboundp 'character-to-unicode)
-	;; #### untested
-	(fset 'char-to-ucs 'character-to-unicode)
-      ;; the following libraries are from Mule-UCS.
-      ;; this dependency can be eliminated by providing char-to-ucs.
+    (if (fboundp 'char-to-unicode)
+	(defalias 'latin-unity-char-to-unicode 'char-to-unicode)
+      ;; The following libraries are from Mule-UCS.  This dependency
+      ;; can be eliminated by providing latin-unity-char-to-unicode.
       (require 'mule-ucs-unicode "unicode")
-      (require 'un-define))
+      (require 'un-define)
+      (defalias 'latin-unity-to-unicode 'char-to-ucs))
   (file-error (setq latin-unity-utils-found-unicode-support nil)))
 
 ;; Table of character set support for each Unicode code point
@@ -77,12 +77,13 @@
   ;; (= (charset-property 'ascii 'chars) 94) :-(
   (loop for i from #x00 to #x7F do
     (let* ((ch (make-char 'ascii i))	; multibyte dirty
-	   (ucs (char-to-ucs ch)))
-      (if ucs
+	   (ucs (latin-unity-char-to-unicode ch)))
+      (if (and ucs (/= ucs -1))
 	  (aset unitable ucs (cons ch (aref unitable ucs)))
 	;; Unfortunately it seems that Mule-UCS doesn't know Latin-9....
 	;; It also is smart enough to know that there are holes in Latin-3.
-	(message "Mule-UCS doesn't know about %s" (split-char ch)))))
+	(message "Your Unicode support doesn't know about %s"
+		 (split-char ch)))))
 
   ;; Other character sets
   ;; Control-1 is spatial, but handled below
@@ -100,10 +101,10 @@
 		     (setq lo #x20 hi #x7F)))
 	    (loop for i from lo to hi do
 	      (let* ((ch (make-char cs i)) ; multibyte dirty
-		     (ucs (char-to-ucs ch)))
-		(if ucs
+		     (ucs (latin-unity-char-to-unicode ch)))
+		(if (and ucs (/= ucs -1))
 		    (aset unitable ucs (cons ch (aref unitable ucs)))
-		  (message "Mule-UCS doesn't know about %s"
+		  (message "Your Unicode support doesn't know about %s"
 			   (split-char ch)))))))
 	(set-difference (copy-sequence latin-unity-character-sets)
 			'(ascii latin-iso8859-13 latin-iso8859-14
@@ -237,8 +238,8 @@
 	    (dolist (ch1 equivs)
 	      (let ((vec (copy-sequence
 			  (get-char-table ch1 latin-unity-equivalences)))
-		    (ucs (char-to-ucs ch1)))
-		(when ucs (aset vec u+index ucs))
+		    (ucs (latin-unity-char-to-unicode ch1)))
+		(when (and ucs (/= ucs -1)) (aset vec u+index ucs))
 		(dolist (ch2 equivs)
 		  (let* ((cset (char-charset ch2))
 			 (bit (get cset 'latin-unity-flag-bit))

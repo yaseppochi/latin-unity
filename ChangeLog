@@ -1,3 +1,9 @@
+2005-04-10  Aidan Kehoe  <kehoea@parhasard.net>
+
+	* latin-unity-utils.el:
+	Have latin-unity-utils.el actually work with 21.5's Unicode
+	support. 
+
 2005-02-28  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.14 released.
