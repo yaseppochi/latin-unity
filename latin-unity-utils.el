@@ -58,7 +58,7 @@
       ;; can be eliminated by providing latin-unity-char-to-unicode.
       (require 'mule-ucs-unicode "unicode")
       (require 'un-define)
-      (defalias 'latin-unity-to-unicode 'char-to-ucs))
+      (defalias 'latin-unity-char-to-unicode 'char-to-ucs))
   (file-error (setq latin-unity-utils-found-unicode-support nil)))
 
 ;; Table of character set support for each Unicode code point
