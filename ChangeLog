@@ -1,3 +1,8 @@
+2005-12-17  Ville Skyttä  <scop@xemacs.org>
+
+	* latin-unity.el (latin-unity-sanity-check): Mimic `write-region's
+	kludgy feature where the region's start offset is a string.
+
 2005-04-10  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.15 released.

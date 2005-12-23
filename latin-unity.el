@@ -551,11 +551,14 @@ to the Mule detection mechanism.  This could result in corruption.  So avoid
 setting `buffer-file-coding-system' to nil or 'no-conversion or 'binary.
 
 This function is intended for use as a `write-region-pre-hook'.  It does
-nothing except return nil if `write-region' handlers are inhibited."
+nothing except return nil if `write-region' handlers are inhibited, or if
+BEGIN is a string (to support the corresponding \"kludgy feature\" of
+`write-region')."
 
   ;; don't do anything if we're in a `write-region' handler
   ;; #### is nil the right return value if we are?
-  (if (eq inhibit-file-name-operation 'write-region)
+  ;; Bypass also on `write-region's "klugdy feature" where BEGIN is a string
+  (if (or (eq inhibit-file-name-operation 'write-region) (stringp begin))
       nil
     (prog1
     (let ((buffer-default
