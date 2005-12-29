@@ -1,3 +1,7 @@
+2005-12-29  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.16 released.
+
 2005-12-17  Ville Skyttä  <scop@xemacs.org>
 
 	* latin-unity.el (latin-unity-sanity-check): Mimic `write-region's
