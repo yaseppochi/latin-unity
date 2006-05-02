@@ -337,7 +337,7 @@ See also `latin-unity-preapproved-coding-systems',
 	    latin-unity-preferred-coding-system-list)
       (fill-region start (point))
 
-      (insert "\Universal coding systems:\n ")
+      (insert "\nUniversal coding systems:\n ")
       (setq start (point))
       (mapc (lambda (codesys) (insert (format " %s" codesys)))
 	    latin-unity-ucs-list)

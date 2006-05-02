@@ -1,3 +1,8 @@
+2006-05-02  Jerry James  <james@xemacs.org>
+
+	* latin-unity.el (latin-unity-list-coding-systems): Change
+	malformed \U to \nU as it should have been.
+
 2005-12-29  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.16 released.
