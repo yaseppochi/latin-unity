@@ -46,16 +46,16 @@
 ;; Check that we're functionally equivalent to the old latin-unity-latin8.el
 
 ;; The character set should exist.
-(assert (charsetp (find-charset 'latin-iso8859-14))
+(assert (charsetp (find-charset 'latin-iso8859-14)) t
 	"`latin-euro-standards' didn't provide a Latin 8 character set!")
 
 ;; As should the coding system.
-(assert (coding-system-p (find-coding-system 'iso-8859-14))
+(assert (coding-system-p (find-coding-system 'iso-8859-14)) t
 	"`latin-euro-standards' didn't provide a Latin 8 coding system!")
 	
 ;; And we should have a language environment. 
 (assert 
- (assoc "Latin-8" language-info-alist)
+ (assoc "Latin-8" language-info-alist) t
  "`latin-euro-standards' didn't provide a Latin 8 language environment!")
 
 (provide 'latin-unity-latin8)

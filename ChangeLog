@@ -1,3 +1,17 @@
+2006-06-25  Aidan Kehoe  <kehoea@parhasard.net>
+
+	* latin-unity-latin10.el (charsetp):
+	* latin-unity-latin10.el (coding-system-p):
+	* latin-unity-latin7.el (charsetp):
+	* latin-unity-latin7.el (coding-system-p):
+	* latin-unity-latin8.el (charsetp):
+	* latin-unity-latin8.el (coding-system-p):
+	* latin-unity-latin9.el (charsetp):
+	* latin-unity-latin9.el (coding-system-p):
+	I didn't understand assert's calling conventions when writing this
+	code, and as a result an assertion failure doesn't show the string
+	I intended it to. 
+	
 2006-05-03  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.17 released.
