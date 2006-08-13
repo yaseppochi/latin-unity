@@ -469,21 +469,23 @@ character sets.  BUFFER defaults to the current buffer."
 	(goto-char (point-min))
 	(while (not (eobp))
 	  (let* ((ch (char-after))
-		 (cs (car (split-char ch))))
+		 (cs (car (split-char ch)))
+		 (flag (get cs 'latin-unity-flag-bit 0)))
 	    (cond
 	     ((eq cs 'ascii)
 	      (setq skipchars (concat "\000-\177" skipchars))
-	      (setq asets (logior (get cs 'latin-unity-flag-bit 0) asets)))
+	      (setq asets (logior flag asets)))
 	     ((eq cs 'latin-jisx0201)
 	      ;; #### get this someday
 	      ;;(setq skipchars (concat skipchars latin-unity-latin-jisx0201))
 	      (setq skipchars (concat skipchars (list ch)))
-	      (setq asets (logior (get cs 'latin-unity-flag-bit 0) asets)))
+	      (setq asets (logior flag asets)))
 	     (t
 	      ;; #### actually we can do the whole charset here
 	      ;; precompute and set a property on the cs symbol
 	      (setq skipchars (concat skipchars (list ch)))
-	      (setq lsets (logior (get cs 'latin-unity-flag-bit 0) lsets)))))
+	      (when (= flag 0) (setq lsets (logior latin-unity-non-latin-bit-flag lsets)))
+	      (setq lsets (logior flag lsets)))))
 	  ;; The characters skipped here can't change asciisets
 	  (skip-chars-forward skipchars))))
     (cons lsets asets)))

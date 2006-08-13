@@ -150,14 +150,17 @@ with the equivalence table.")
   "Bit vector representing the set of all Latin character sets.")
 
 ;; put the character set indicies and flag bits in reasonable places
-(let ((index 1) (bit 1))
-  (if (> (length latin-unity-character-sets) 25)
-      (error "representation too small to support so many charsets!"))
-  (mapcar (lambda (cs)
-	    (put cs 'latin-unity-flag-bit bit)
-	    (put cs 'latin-unity-index index)
-	    (setq bit (lsh bit 1)
-		  index (1+ index)))
-	  latin-unity-character-sets))
+(defconst latin-unity-non-latin-bit-flag
+  (let ((index 1) (bit 1))
+    (if (> (length latin-unity-character-sets) 25)
+	(error "representation too small to support so many charsets!"))
+    (mapcar (lambda (cs)
+	      (put cs 'latin-unity-flag-bit bit)
+	      (put cs 'latin-unity-index index)
+	      (setq bit (lsh bit 1)
+		    index (1+ index)))
+	    latin-unity-character-sets)
+    bit)
+  "A bit-flag indicating charsets not handled by latin-unity.")
 
 ;;; end of latin-unity-vars.

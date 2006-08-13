@@ -1,3 +1,11 @@
+2006-06-22  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity-vars.el (latin-unity-non-latin-bit-flag): New constant.
+
+	* latin-unity.el (latin-unity-representations-present-region): Use
+	it to kludge around bug reported in
+	<m364iwq4yq.fsf@jerrypc.cs.usu.edu>.
+
 2006-06-28  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.18 released.
