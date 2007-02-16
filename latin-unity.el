@@ -491,12 +491,27 @@ character sets.  BUFFER defaults to the current buffer."
 	      ;;(setq skipchars (concat skipchars latin-unity-latin-jisx0201))
 	      (setq skipchars (concat skipchars (list ch)))
 	      (setq asets (logior flag asets)))
+	     ;; Control-1 hack
+	     ;; C1 characters map to themselves in all ISO 8859 coding
+	     ;; systems.  So we ignore them in the feasibility computation.
+	     ;; #### It would be nice to unify Windows-12xx charsets among
+	     ;; themselves.  Then add a local variable c1sets, and treat
+	     ;; skipchars as in the default clause, below.  This requires
+	     ;; deciding how to treat C1 characters when graphic characters
+	     ;; are also present in the same range.  What Would Gates Do?
+	     ;; This will also require an interface change.  This function
+	     ;; will need to return (lsets c1set asets), which is why I'm
+	     ;; not doing the generalization yet.
+	     ((eq cs 'control-1)
+	      ;; minor optimization
+	      (setq skipchars (concat "\200-\237" skipchars)))
 	     (t
 	      ;; #### actually we can do the whole charset here
 	      ;; precompute and set a property on the cs symbol
 	      (setq skipchars (concat skipchars (list ch)))
-	      (when (= flag 0) (setq lsets (logior latin-unity-non-latin-bit-flag lsets)))
-	      (setq lsets (logior flag lsets)))))
+	      (if (= flag 0)
+		  (setq lsets (logior latin-unity-non-latin-bit-flag lsets))
+		(setq lsets (logior flag lsets))))))
 	  ;; The characters skipped here can't change asciisets
 	  (skip-chars-forward skipchars))))
     (cons lsets asets)))
