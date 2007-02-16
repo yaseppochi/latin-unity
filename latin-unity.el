@@ -33,7 +33,9 @@
 ;; determine the list of coding systems which can encode all of the
 ;; characters in the buffer.
 
-;; Provides the 'iso-8859-13 and 'iso-8859-15 coding systems if undefined.
+;; The companion package `latin-euro-standards' provides the 'iso-8859-13,
+;; 'iso-8859-14, 'iso-8859-15, and 'iso-8859-16 coding systems charsets
+;; and coding systems.
 
 ;;; Code:
 
@@ -94,8 +96,9 @@ should move 'preferred to `latin-unity-preferred-coding-system-list'."
 
 If no coding system in `latin-unity-preapproved-coding-system-list' is
 feasible, this list will be recommended to the user, followed by the
-`latin-unity-ucs-list' (so those coding systems should not be in this list).
-The first coding system in this list is default.
+`latin-unity-ucs-list'.  (Since the user makes the choice, including
+universal coding systems in this list is redundant.)
+The first coding system in this list is the default choice.
 
 The special values 'preferred and 'buffer-default may be present:
   buffer-default  Use the coding system used by `write-region', if feasible.
@@ -131,9 +134,11 @@ Lisp files.
 latin-unity does not try to be \"smart\" about general ISO 2022 coding
 systems, such as ISO-2022-JP.  (They are not recognized as equivalent
 to `iso-2022-7'.)  If your preferred coding system is one of these,
-consider adding it to `latin-unity-ucs-list'.  However, this will
-typically have the side effect that (eg) ISO 8859/1 files will be
-saved in 7-bit form with ISO 2022 escape sequences."
+consider adding it to `latin-unity-ucs-list'.  Note that choice of 7-bit
+UCSes for saving files will have the side effect that ISO 8859 files will
+be saved in 7-bit form with ISO 2022 escape sequences.  `ctext', i.e. X
+Compound Text, is exceptional in that it will preserve ISO 8859/1.  `ctext'
+will convert files encoded in other ISO 8859 coding systems to 7-bit form."
   :type '(repeat symbol)
   :group 'latin-unity)
 
@@ -150,7 +155,8 @@ saved in 7-bit form with ISO 2022 escape sequences."
 
 Both aliases and names are symbols.
 Aliases of unsupported charsets will be treated as if the charset name had
-been entered directly (normally an error will be signaled)."
+been entered directly (normally an error will be signaled for the Mule
+charset)."
   :type '(repeat (cons symbol symbol))
   :group 'latin-unity)
 
@@ -184,7 +190,11 @@ Not a user variable.  Customize input of coding systems or charsets via
   :group 'latin-unity)
 
 (defcustom latin-unity-like-to-live-dangerously nil
-  "Convert failure to remap buffer from error to warning."
+  "Convert failure to remap buffer from error to warning.
+
+Note that in ordinary editing, the buffer will normally remain, so the user
+can re-save in a feasible coding system.  However, many subsystems such as
+MUAs may destroy the buffer immediately after disposing of the contents."
   :type 'boolean
   :group 'latin-unity)
 
@@ -212,9 +222,7 @@ Not a user variable.  Customize input of coding systems or charsets via
 ;;;###autoload
 (defun latin-unity-install ()
   "Set up hooks and initialize variables for latin-unity.
-
-This function is idempotent.  It will reinitialize any hooks or variables
-that are not in initial state."
+Currently affects `write-region-pre-hook' and no variables."
 
   (interactive)
 
@@ -222,7 +230,8 @@ that are not in initial state."
 
 ;;;###autoload
 (defun latin-unity-uninstall ()
-  "Clean up hooks and void variables used by latin-unity."
+  "Clean up hooks and void variables used by latin-unity.
+Currently affects `write-region-pre-hook' and no variables."
 
   (interactive)
 
@@ -241,11 +250,13 @@ that are not in initial state."
 ;; Mule is _so_ losing.  Coding system objects should generally be hidden
 ;; from lookup functions, etc.
 (defsubst latin-unity-massage-name (x coding-system)
-  "Return the real name of X, a symbol.
+  "Return the name of the coding system referred to by symbol X.
 
 X may be 'buffer-default, 'preferred, a coding system object, or a symbol
 naming a coding system.  CODING-SYSTEM determines the interpretation of
-'buffer-default, and `coding-priority-list' that of  'preferred."
+'buffer-default, and `coding-priority-list' that of  'preferred.
+
+Does not check the aliases variables."
   (coding-system-name
    (cond ((eq x 'buffer-default) coding-system)
 	 ((eq x 'preferred)
@@ -283,7 +294,7 @@ This is a debugging function; don't depend on its behavior."
 	    (widen)
 	    (let ((begin (or begin (point-min)))
 		  (end (or end (point-max))))
-	      ;; this function is slow!
+	      ;; this function is slow, at least in 21.4!
 	      (charsets-in-region begin end))))))
 
 (defsubst latin-unity-charset-feasible-system (charset bvector buffer-default)
@@ -448,7 +459,7 @@ individually represent all of the ASCII portion."
 
 
 ;; #### possibly it would be faster to do this in the previous function
-;; charsets-in-region unusable; it is in Lisp and quite slow.  :-(
+;; charsets-in-region unusable; before 21.5.27 it's in Lisp and very slow. :-(
 (defun latin-unity-representations-present-region (begin end &optional buffer)
   "Return a cons of two bit vectors giving character sets in region.
 
@@ -559,7 +570,7 @@ BEGIN is a string (to support the corresponding \"kludgy feature\" of
 
   ;; don't do anything if we're in a `write-region' handler
   ;; #### is nil the right return value if we are?
-  ;; Bypass also on `write-region's "klugdy feature" where BEGIN is a string
+  ;; Bypass also on `write-region's "kludgy feature" where BEGIN is a string
   (if (or (eq inhibit-file-name-operation 'write-region) (stringp begin))
       nil
     (prog1

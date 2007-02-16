@@ -1,3 +1,7 @@
+2007-02-16  Stephen J. Turnbull  <stephen@xemacs.org>
+
+	* latin-unity.el: Documentation clarification.
+
 2006-08-14  Norbert Koch  <viteno@xemacs.org>
 
 	* Makefile (VERSION): XEmacs package 1.19 released.
