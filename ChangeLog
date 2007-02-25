@@ -1,3 +1,7 @@
+2007-02-25  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.20 released.
+
 2007-02-16  Stephen J. Turnbull  <stephen@xemacs.org>
 
 	* latin-unity.el (latin-unity-representations-present-region):
