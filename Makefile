@@ -36,15 +36,6 @@ else
 REQUIRES = mule-base latin-euro-standards mule-ucs leim fsf-compat dired
 endif
 
-# Latin-Unity is a unique package in that it does not compile or run
-# under XEmacsen 21.1, at least not "out of the box".  So here's
-# some really ugly Makefile voodoo that will allow people using XEmacs
-# 21.1 to build the packages without it blowing up in their faces.
-# Don't try this at home, kids.  SY.
-include ../../Local.rules
-CHECK_VERSION =	$(XEMACS) -batch -no-autoloads -eval '(princ (emacs-version>= 21 4))'
-
-ifeq ($(shell $(CHECK_VERSION)),t)
 ELCS = latin-unity.elc latin-unity-vars.elc latin-euro-input.elc \
        latin-unity-latin7.elc latin-latin7-input.elc latin-unity-latin9.elc \
        latin-unity-latin8.elc latin-unity-latin10.elc \
@@ -86,14 +77,3 @@ check: all
 #		-l latin-unity-vars -l latin-unity \
 #		-f latin-unity-install -f latin-unity-test \
 #		-eval "(write-file \"./latintest\" nil 'iso-2022-7)"
-else
-include ../../Version.rules
-
-bad-version: autoloads
-	@echo "************************ W A R N I N G *************************"
-	@echo "Building $(PACKAGE) with versions less than 21.4 is unsupported by"
-	@echo "the XEmacs Project."
-	@echo "If you need this feature, contact the package maintainer directly:"
-	@echo "$(MAINTAINER)"
-
-endif
