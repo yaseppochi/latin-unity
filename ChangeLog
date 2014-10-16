@@ -1,3 +1,7 @@
+2014-10-16  Norbert Koch  <viteno@xemacs.org>
+
+	* Makefile (VERSION): XEmacs package 1.23 released.
+
 2014-09-29  Jerry James  <james@xemacs.org>
 
 	* Makefile: Drop XEmacs 21.1 support.
