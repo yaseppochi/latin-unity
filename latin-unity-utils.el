@@ -291,6 +291,8 @@
 			 (if (third x) (format " %d)" (third x)) ")")))))
 	(map-char-table
 	 (lambda (key val)
+           ;; XEmacs 21.5; this code is superseded in unicode-internal, not
+           ;; updated to reflect it.
 	   (when (characterp key)
 	     (insert (format "\n    (put-char-table %s (vector %s) table)"
 			     (mmc key)
